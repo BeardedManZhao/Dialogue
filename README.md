@@ -1,2 +1,11 @@
 # Dialogue
-主机服务器远程操作工具API，在该API中，包含主控端与被控端，其中可以使用命令会话对象进行互相通信也可以使用其它的会话对象。| The host server remote operation tool API, which includes the main control end and the controlled end. The command session object can be used to communicate with each other and other session objects can also be used.
+
+# 介绍
+Dialogue 是一个针对远程控制而制造出来的工具，在该框架内，有很强大的主控功能与被控端容错机制，通过TCP进行远程控制，提供了启动函数，同时也可以手动进行API的调用！
+## 有哪些功能？
+
+|     |     |     |     |
+|-----|-----|-----|-----|
+|     |     |     |     |
+|     |     |     |     |
+
