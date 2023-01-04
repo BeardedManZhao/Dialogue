@@ -3,6 +3,10 @@ package dialogue.utils;
 import java.io.IOException;
 
 /**
+ * 异常事件监听器，该类可以用于异常的监听与回复和获取等操作。
+ * <p>
+ * Exception event listener, which can be used for monitoring, replying and obtaining exceptions.
+ *
  * @author zhao
  */
 public class ExceptionProgress implements ProgressEvent<Exception, RuntimeException, IOException> {

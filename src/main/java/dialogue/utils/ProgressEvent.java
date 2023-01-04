@@ -2,6 +2,7 @@ package dialogue.utils;
 
 import dialogue.utils.progressEvent.ProgressFileBar;
 import dialogue.utils.progressEvent.ProgressFileNumber;
+import dialogue.utils.progressEvent.ProgressPercentage;
 
 /**
  * 事件接口，目前作为进度事件处理，在远程下载文件等需要进度显示的操作时，该类的逻辑可以被每一批数据启动。
@@ -27,6 +28,12 @@ public interface ProgressEvent<type1, type2, type3> {
      * 第三个函数是进度条的结束操作函数
      */
     ProgressFileNumber PROGRESS_FILE_NUMBER = new ProgressFileNumber();
+    /**
+     * 百分比事件监听实现类，在其中第一个函数是进度条的起始操作函数
+     * 第二个函数是进度条的过程操作函数
+     * 第三个函数是进度条的结束操作函数
+     */
+    ProgressFileNumber PROGRESS_FILE_PERCENTAGE = new ProgressPercentage();
 
     /**
      * 事件监听逻辑实现一号函数，在类中有很多需要实现的函数，这些函数的提供是为了兼顾很多事件的监听，您可以将这些函数放到不同的地方调用

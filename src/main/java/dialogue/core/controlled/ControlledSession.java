@@ -1,9 +1,11 @@
-package dialogue.server;
+package dialogue.core.controlled;
 
 import dialogue.ConfigureConstantArea;
 import dialogue.DialogueManager;
 import dialogue.Host;
 import dialogue.Session;
+import dialogue.core.exception.SessionExtractionException;
+import dialogue.utils.ProgressEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,16 +24,16 @@ import java.util.logging.Level;
  */
 public abstract class ControlledSession implements Controlled, Host, Session {
 
+    /**
+     * 这三个是状态词，如果运行之后返回的是这三个字符串，那么代表本次会话操作完成，不需要进行额外的信息传递。
+     * <p>
+     * These three are status words. If these three strings are returned after running, the session operation is completed and no additional information transmission is required.
+     */
     public final static String SEND_TEXT = "send/text";
-
-    /**
-     * 会将文件成功的状态提供给主控，然后开始发送数据
-     */
     public final static String SEND_FILE_BYTE = "send/bit";
-    /**
-     * 会将该错误提供给主控，会话会从 result 中提取错误数据，并将错误数据提供给主控的文件下载的状态槽
-     */
     public final static String SEND_FILE_ERROR = "send/error";
+
+
     protected final static Runtime runtime = Runtime.getRuntime();
     private final static String INIT_INFO = "Successfully initialized the server";
     private final static String INIT_ERROR = "Controlled initialization failed";
@@ -45,7 +47,7 @@ public abstract class ControlledSession implements Controlled, Host, Session {
     protected ControlledSession() {
         try {
             if (serverSocket == null) {
-                serverSocket = new ServerSocket(ConfigureConstantArea.Controlled_PORT);
+                serverSocket = new ServerSocket(ConfigureConstantArea.CONTROLLED_PORT);
             }
             ConfigureConstantArea.LOGGER.log(Level.INFO, INIT_INFO);
         } catch (IOException e) {
@@ -76,7 +78,7 @@ public abstract class ControlledSession implements Controlled, Host, Session {
             }
             return session;
         } else {
-            throw new RuntimeException("您想要获取的会话组件不属于被控设备会话对象，因此无法获取到对应的设备。\nThe session component you want to obtain does not belong to the controlled device session object, so the corresponding device cannot be obtained.");
+            throw new SessionExtractionException("您想要获取的会话组件不属于被控设备会话对象，因此无法获取到对应的设备。\nThe session component you want to obtain does not belong to the controlled device session object, so the corresponding device cannot be obtained.");
         }
     }
 
@@ -98,6 +100,20 @@ public abstract class ControlledSession implements Controlled, Host, Session {
      */
     @Override
     public void start(String... args) {
+        start(args, null);
+    }
+
+    /**
+     * 启动主机，开始运行逻辑与程序，启动该主机对应的所有功能。
+     * <p>
+     * Start the host, start running logic and programs, and start all functions corresponding to the host.
+     *
+     * @param args          主机启动的参数
+     * @param progressEvent 启动之后，在正式开始服务之前，需要的额外启动操作事件实现类，该形参是用于子类进行拓展实现的。
+     *                      <p>
+     *                      After startup, the additional startup operation event implementation class is required before the service is officially started. This parameter is used for the extension implementation of subclasses.
+     */
+    protected void start(String[] args, ProgressEvent<Socket, OutputStream, InputStream> progressEvent) {
         if (!(args.length > 0 && "reboot".equalsIgnoreCase(args[0]))) {
             if (!this.Running) {
                 this.Running = true;
@@ -116,6 +132,11 @@ public abstract class ControlledSession implements Controlled, Host, Session {
             final String send_text = SEND_TEXT + " ok!";
             final String return_to_text_data = "return to text data";
             final byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
+            if (progressEvent != null) {
+                progressEvent.function1(accept);
+                progressEvent.function2(outputStream);
+                progressEvent.function3(inputStream);
+            }
             while (this.Running) {
                 int offset = inputStream.read(buffer);
                 if (offset > 0) {
@@ -221,4 +242,16 @@ public abstract class ControlledSession implements Controlled, Host, Session {
      */
     @Override
     public abstract String runCommand(String command);
+
+    /**
+     * 将当前会话克隆一个出来，使得一种会话可以提供给多个网络连接使用，需要注意的是，克隆出来的会话将不会被管理者所管理。
+     * <p>
+     * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
+     *
+     * @return 一个与当前会话功能一致的新会话对象，不会与原会话有任何的关系
+     * <p>
+     * A new session object with the same function as the current session will not have any relationship with the original session
+     */
+    @Override
+    public abstract ControlledSession cloneSession();
 }

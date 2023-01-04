@@ -1,9 +1,11 @@
-package dialogue.client;
+package dialogue.core.master;
 
 import dialogue.ConfigureConstantArea;
 import dialogue.DialogueManager;
 import dialogue.Host;
 import dialogue.Session;
+import dialogue.core.exception.SessionExtractionException;
+import dialogue.core.exception.SessionStartException;
 import dialogue.utils.IOUtils;
 
 import java.io.IOException;
@@ -23,7 +25,7 @@ public abstract class MasterSession implements Master, Host, Session {
     private final static String INIT_INFO = "Successfully initialized the Master";
     private final static String START_WARN = "The current session is already running";
     private final static String STOP_WARN = "The current session has stopped running";
-    protected static Socket MasterSocket;
+    protected Socket MasterSocket;
     // 传递命令给客户端
     protected OutputStream outputStream;
     protected InputStream inputStream;
@@ -57,7 +59,7 @@ public abstract class MasterSession implements Master, Host, Session {
             }
             return session;
         } else {
-            throw new RuntimeException("您想要获取的会话组件不属于主控设备会话对象，因此无法获取到对应的设备。\nThe session component you want to obtain does not belong to the session object of the master device, so the corresponding device cannot be obtained.");
+            throw new SessionExtractionException("您想要获取的会话组件不属于主控设备会话对象，因此无法获取到对应的设备。\nThe session component you want to obtain does not belong to the session object of the master device, so the corresponding device cannot be obtained.");
         }
     }
 
@@ -76,7 +78,7 @@ public abstract class MasterSession implements Master, Host, Session {
      * <p>
      * Start the host, start running logic and programs, and start all functions corresponding to the host.
      *
-     * @param args 主机启动的参数
+     * @param args 主机启动的参数 在这里需要传入被控设备的IP与端口
      */
     @Override
     public void start(String... args) {
@@ -89,18 +91,18 @@ public abstract class MasterSession implements Master, Host, Session {
                 try {
                     inputStream = MasterSocket.getInputStream();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new SessionStartException("Inevitable errors occurred in the start process of the master session", e);
                 }
                 try {
                     outputStream = MasterSocket.getOutputStream();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new SessionStartException("Inevitable errors occurred in the start process of the master session", e);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new SessionStartException("A network error occurred while the master session was connecting to the controlled device", e);
             }
         } else {
-            throw new RuntimeException("An error occurred while preparing to start the Master session. The parameter cannot be parsed!\n" +
+            throw new SessionStartException("An error occurred while preparing to start the Master session. The parameter cannot be parsed!\n" +
                     "Parameter example: arg[0]=[Operating Master IP]  arg[1]=[Operating Master Port]");
         }
         this.Running = true;
@@ -160,4 +162,16 @@ public abstract class MasterSession implements Master, Host, Session {
      */
     @Override
     public abstract String runCommand(String command);
+
+    /**
+     * 将当前会话克隆一个出来，使得一种会话可以提供给多个网络连接使用，需要注意的是，克隆出来的会话将不会被管理者所管理。
+     * <p>
+     * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
+     *
+     * @return 一个与当前会话功能一致的新会话对象，不会与原会话有任何的关系
+     * <p>
+     * A new session object with the same function as the current session will not have any relationship with the original session
+     */
+    @Override
+    public abstract MasterSession cloneSession();
 }

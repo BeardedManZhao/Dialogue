@@ -1,7 +1,7 @@
 package dialogue.start;
 
-import dialogue.Session;
-import dialogue.client.MasterSession;
+import dialogue.core.master.MasterFileSession;
+import dialogue.core.master.MasterSession;
 
 /**
  * 测试用例
@@ -11,31 +11,23 @@ import dialogue.client.MasterSession;
 public class Test {
 
     public static void main(String[] args) {
-        // 获取到主控会话对象
-        MasterSession instance = MasterSession.getInstance(Session.MASTER_FILE_SESSION);
-        // 启动会话 指定被控IP与指令处理端口，被控端口默认是10001
-        instance.start("192.168.1.15", "10001");
-        if (instance.isRunning()) {
-            // 执行cmd命令，并获取到执行的结果数据
-            String s1 = instance.runCommand("cmd /c dir");
-            System.out.println(s1);
-            System.out.println();
-            // 运行一个python脚本
-            String s2 = instance.runCommand("python test.py");
-            System.out.println(s2);
-            System.out.println();
-            // 执行 cmd 命令查看python脚本的代码
-            String s3 = instance.runCommand("cmd /c type test.py");
-            System.out.println(s3);
-            System.out.println();
-            // 执行 look 命令，使用文件通道 查看python脚本的代码
-            String s4 = instance.runCommand("look ./test.py");
-            System.out.println(s4);
-            // 执行 get 命令，获取到被控设备的文件数据 这里的进度显示可以在配置文件中 file.progress.event 属性进行设置
-            String s5 = instance.runCommand("get ./text.py ./zhao.txt");
-            System.out.println(s5);
-        }
-        // 终止当前会话
+        // 获取到第一个主控会话对象
+        MasterSession instance = MasterFileSession.getInstance();
+        // 以第一个会话为原型，克隆出一个新会话
+        MasterSession instance1 = instance.cloneSession();
+        // 启动主控会话 同时提供被控设备的IP和被控会话端口
+        instance1.start("192.168.1.25", "10003");
+        instance.start("192.168.1.15", "10003");
+        // 开始执行打开记事本命令
+        String s = instance.runCommand("cmd /c notepad");
+        System.out.println("* 执行结果 >>> " + s);
+        String s1 = instance1.runCommand("cmd /c notepad");
+        System.out.println("* 执行结果 >>> " + s1);
+        // 执行 put 命令 将一个文件 远程传输给被控
+        String s2 = instance.runCommand("put D:\\MyGitHub\\Dialogue\\out\\artifacts\\Dialogue_jar\\conf\\conf.properties conf\\conf.properties");
+        System.out.println(s2);
+        // 关闭主控会话
         instance.stop();
+        instance1.stop();
     }
 }

@@ -1,10 +1,10 @@
 package dialogue.start;
 
 import dialogue.ConfigureConstantArea;
-import dialogue.client.MasterFileSession;
-import dialogue.client.MasterSession;
-import dialogue.server.ControlledFileSession;
-import dialogue.server.ControlledSession;
+import dialogue.core.controlled.ControlledFileSession;
+import dialogue.core.controlled.ControlledSession;
+import dialogue.core.master.MasterFileSession;
+import dialogue.core.master.MasterSession;
 
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -42,7 +42,7 @@ public final class MAIN {
             instance.stop();
         } else {
             ConfigureConstantArea.LOGGER.log(Level.INFO, "默认被控会话系统启动.......");
-            ConfigureConstantArea.LOGGER.log(Level.INFO, "根据配置文件打开被控端口：" + ConfigureConstantArea.Controlled_PORT);
+            ConfigureConstantArea.LOGGER.log(Level.INFO, "根据配置文件打开被控端口：" + ConfigureConstantArea.CONTROLLED_PORT);
             Thread.sleep(1024);
             ControlledSession instance = ControlledFileSession.getInstance();
             new Thread(instance::start).start();

@@ -1,5 +1,7 @@
 package dialogue;
 
+import dialogue.core.exception.SessionExtractionException;
+
 /**
  * 主机管理者类，针对每一个IP的主机对象，该管理者中都会存储对应的主机对象。
  * <p>
@@ -20,7 +22,7 @@ public class DialogueManager implements Session {
         if (sessionNum < SESSION_LENGTH) {
             return (sessionType) sessions[sessionNum];
         } else {
-            throw new RuntimeException("提取会话对象错误，该会话对象不存在。\nError fetching session object, the session object does not exist.\n => " + sessionNum);
+            throw new SessionExtractionException("提取会话对象错误，该会话对象不存在。\nError fetching session object, the session object does not exist.\n => " + sessionNum);
         }
     }
 
@@ -34,8 +36,22 @@ public class DialogueManager implements Session {
         if (sessionNum >= 0 && sessionNum < SESSION_LENGTH) {
             sessions[sessionNum] = session;
         } else {
-            throw new RuntimeException("注册的会话编号不正确。\nThe session number registered is incorrect.\nERROR => " + sessionNum);
+            throw new SessionExtractionException("注册的会话编号不正确。\nThe session number registered is incorrect.\nERROR => " + sessionNum);
         }
+    }
+
+    /**
+     * 将当前会话克隆一个出来，使得一种会话可以提供给多个网络连接使用，需要注意的是，克隆出来的会话将不会被管理者所管理。
+     * <p>
+     * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
+     *
+     * @return 一个与当前会话功能一致的新会话对象，不会与原会话有任何的关系
+     * <p>
+     * A new session object with the same function as the current session will not have any relationship with the original session
+     */
+    @Override
+    public Session cloneSession() {
+        return this;
     }
 
     @Override

@@ -1,9 +1,15 @@
 package dialogue;
 
+import dialogue.core.exception.SessionRunException;
+
 import java.util.regex.Pattern;
 
 public interface Session {
 
+    /**
+     * 会话没有启动，却执行的会话逻辑的情况下会抛出该异常信息
+     */
+    SessionRunException SESSION_NOT_STARTED = new SessionRunException("Session not started");
     Pattern COMMAND_PATTERN = Pattern.compile("\\s*?(\\S+)\\s*");
 
     /**
@@ -54,6 +60,17 @@ public interface Session {
     static Session getInstance(int SessionNum) {
         return DialogueManager.getSession(SessionNum);
     }
+
+    /**
+     * 将当前会话克隆一个出来，使得一种会话可以提供给多个网络连接使用，需要注意的是，克隆出来的会话将不会被管理者所管理。
+     * <p>
+     * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
+     *
+     * @return 一个与当前会话功能一致的新会话对象，不会与原会话有任何的关系
+     * <p>
+     * A new session object with the same function as the current session will not have any relationship with the original session
+     */
+    Session cloneSession();
 
     /**
      * 返回会话当前运行状态，当一个会话没有在运行的时候，该函数将返回false，一个没有运行中的会话将不具备执行命令与回显数据的能力

@@ -1,6 +1,12 @@
 package dialogue.utils.progressEvent;
 
+import dialogue.ConfigureConstantArea;
+
 /**
+ * 文件进度条显示事件监听器，在这里就是针对文件读写进度的显示事件实现类。
+ * <p>
+ * The file progress bar displays the event listener, which is a display event implementation class for file read/write progress.
+ *
  * @author zhao
  */
 public class ProgressFileBar extends ProgressFileNumber {
@@ -15,7 +21,11 @@ public class ProgressFileBar extends ProgressFileNumber {
      */
     @Override
     public void function1(Integer type) {
-        System.out.print("\033[32m" + s1);
+        if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
+            System.out.print("\033[32m" + s1);
+        } else {
+            System.out.println(s1);
+        }
     }
 
     /**
@@ -25,7 +35,8 @@ public class ProgressFileBar extends ProgressFileNumber {
      */
     @Override
     public void function2(Integer type) {
-        if (batch - (batch++ >> 4 << 4) == 0) {
+        if (++batch == ConfigureConstantArea.PROGRESS_REFRESH_THRESHOLD) {
+            batch = 0;
             System.out.print(s2);
         }
     }
@@ -37,6 +48,10 @@ public class ProgressFileBar extends ProgressFileNumber {
      */
     @Override
     public void function3(Integer type) {
-        System.out.println(s3 + "\033[0m");
+        if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
+            System.out.println(s3 + "\033[0m");
+        } else {
+            System.out.println(s3);
+        }
     }
 }

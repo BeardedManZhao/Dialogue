@@ -11,19 +11,25 @@ import dialogue.utils.ProgressEvent;
  * @author zhao
  */
 public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integer> {
-    protected final StringBuilder stringBuilder = new StringBuilder(0x40);
-    protected int maxSize = ConfigureConstantArea.TCP_BUFFER_MAX_SIZE;
+    public final static String COLOR_YELLOW = "\033[33m";
+    public final static String COLOR_GREEN = "\033[32m";
+    public final static String COLOR_DEF = "\033[0m";
+    public final static String COLOR_NO = "";
+    protected static final StringBuilder stringBuilder = new StringBuilder(0x40);
+    protected long maxSize = ConfigureConstantArea.TCP_BUFFER_MAX_SIZE;
     protected int batch = 0;
-    private int count = 0;
-    private int count_Str_Size;
+    protected int count = 0;
+    private int count_Str_Size = COLOR_YELLOW.length();
     private String Fallback = "";
+    private String temp;
 
     public void setMaxSize(int maxSize) {
         this.maxSize = maxSize;
+        temp = "byte / " + maxSize + "byte";
     }
 
     /**
-     * 事件监听逻辑实现一号函数，在类中有很多需要实现的函数，这些函数的提供是为了兼顾很多事件的监听，您可以将这些函数放到不同的地方调用
+     * 事件监听逻辑实现一号函数，在类中有很多需要实现的函数，在这里的函数作为进度条的起始点
      *
      * @param type 来自外界提供的参数，一般是作为数据读取偏移量
      */
@@ -33,51 +39,73 @@ public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integ
     }
 
     /**
-     * 事件监听逻辑实现二号函数，在类中有很多需要实现的函数，这些函数的提供是为了兼顾很多事件的监听，您可以将这些函数放到不同的地方调用
+     * 事件监听逻辑实现二号函数，在类中有很多需要实现的函数，在这里的函数作为进度条的过程事件函数
      *
      * @param type 来自外界提供的参数，一般是作为数据读取偏移量
      */
     @Override
     public void function2(Integer type) {
-        if (batch - (batch++ >> 4 << 4) == 0) {
-            exc(type);
+        if (++batch == ConfigureConstantArea.PROGRESS_REFRESH_THRESHOLD) {
+            batch = 0;
+            if (ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE) {
+                exc("%" + (((double) count / maxSize) * 100) + '\n' + (count += type) + temp, COLOR_YELLOW);
+            } else {
+                exc((count += type) + temp, COLOR_YELLOW);
+            }
         } else {
             count += type;
         }
     }
 
     /**
-     * 事件监听逻辑实现三号函数，作为文件读取结束符号的处理，在这里的函数
+     * 事件监听逻辑实现三号函数，作为文件读取结束符号的处理，在这里的函数作为进度条的结束点
      *
      * @param type 来自外界提供的参数，一般是作为数据读取偏移量
      */
     @Override
     public void function3(Integer type) {
-        System.out.println("\nSuccessfully read data of [\033[32m" + (count + type) + "\033[0m] bytes in total!");
+        exc("\n%" + (((double) count / maxSize) * 100) + '\n' + (count += type) + temp, COLOR_GREEN);
+        if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
+            System.out.println("\nSuccessfully read data of [\033[32m" + (count + type) + "\033[0m] bytes in total!");
+        } else {
+            System.out.println("\nSuccessfully read data of [" + (count + type) + "] bytes in total!");
+        }
+        clear();
+    }
+
+    protected void clear() {
         count = 0;
         count_Str_Size = 0;
-        Fallback = "";
+        Fallback = COLOR_NO;
         batch = 0;
+        setMaxSize(ConfigureConstantArea.TCP_BUFFER_MAX_SIZE);
         stringBuilder.delete(0, stringBuilder.length());
     }
 
     /**
      * 更新进度条数据
      *
-     * @param type 当前进度条数值中要累加的数值
+     * @param type 当前进度条要显示的新数据
      */
-    private void exc(Integer type) {
-        int back_size = count_Str_Size;
-        String s = "\033[33m" + (count += type) + " Byte";
-        count_Str_Size = s.length();
+    protected void exc(String type, String color) {
+        String s;
+        if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
+            s = Fallback + color + type + COLOR_DEF;
+        } else {
+            s = Fallback + type;
+        }
+        exc2(s, count_Str_Size);
+        System.out.print(s);
+    }
+
+    private void exc2(String type, int back_size) {
+        count_Str_Size = type.length();
         int i1 = count_Str_Size - back_size;
         if (i1 != 0) {
-            for (int i = 0; i < i1 + 4; ++i) {
+            for (int i = 0; i < i1 + 8; ++i) {
                 stringBuilder.append('\b');
             }
             Fallback = stringBuilder.toString();
-            System.out.print(' ');
         }
-        System.out.print(Fallback + s + " \033[0m");
     }
 }
