@@ -1,5 +1,7 @@
 package dialogue;
 
+import java.util.Date;
+
 /**
  * 主机抽象类，其中提供了获取主机的信息与运行命令的函数
  */
@@ -22,6 +24,20 @@ public interface Host {
      * @param args 主机关闭的参数
      */
     void stop(String... args);
+
+    /**
+     * @return 主机的启动日期，当主机启动之后这里将会返回日期时间，如果主机没有启动，这里将会返回 null
+     * <p>
+     * The start date of the host. When the host is started, the date and time will be returned here. If the host is not started, null will be returned here
+     */
+    Date getStartDate();
+
+    /**
+     * @return 运行时长，从上一次启动开始到当下的时间间隔，注意，如果停止，该参数返回0
+     * <p>
+     * The running time is long. The time interval from the last startup to the current one. Note that if it is stopped, this parameter returns 0
+     */
+    long getRunTimeMS();
 
     /**
      * 获取到本主机的IP地址的字符串形式对象。

@@ -1,6 +1,7 @@
 package dialogue.utils;
 
 import dialogue.ConfigureConstantArea;
+import dialogue.utils.progressEvent.ProgressFileNumber;
 
 import java.io.*;
 
@@ -83,6 +84,40 @@ public final class IOUtils {
      */
     public static void copy(InputStream inputStream, OutputStream outputStream, boolean CloseStream) throws IOException {
         copy(inputStream, outputStream, CloseStream, null);
+    }
+
+    /**
+     * 指定数据量通知具备进度条展示的方式进行数据流的拷贝，的放肆将两个数据流中的数据进行拷贝
+     *
+     * @param localFileSize       本次拷贝的数据量
+     * @param bufferedInputStream 源数据流
+     * @param dataOutputStream    目标数据流
+     * @param fileProgress        文件传输进度条对象
+     * @throws IOException 数据里拷贝是出现异常的异常对象抛出
+     */
+    public static void copy(long localFileSize, InputStream bufferedInputStream, OutputStream dataOutputStream, ProgressFileNumber fileProgress) throws IOException {
+        if (fileProgress != null) {
+            fileProgress.function1(0);
+            byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
+            int offset;
+            while ((offset = bufferedInputStream.read(buffer)) > 0) {
+                fileProgress.function2(offset);
+                dataOutputStream.write(buffer, 0, offset);
+                if ((localFileSize -= offset) <= 0) {
+                    break;
+                }
+            }
+            fileProgress.function3(0);
+        } else {
+            byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
+            int offset;
+            while ((offset = bufferedInputStream.read(buffer)) > 0) {
+                dataOutputStream.write(buffer, 0, offset);
+                if ((localFileSize -= offset) <= 0) {
+                    break;
+                }
+            }
+        }
     }
 
     /**

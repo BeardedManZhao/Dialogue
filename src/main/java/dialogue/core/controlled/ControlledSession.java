@@ -10,15 +10,21 @@ import dialogue.utils.ProgressEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.logging.Level;
 
 /**
  * 服务端会话对象，在会话对象中可以进行命令的传递与解析操作，不同的会话适用不同的操作，每一个会话的实现类都必须要进行该类的处理。
  * <p>
  * The server side session object can transfer and parse commands in the session object. Different sessions apply to different operations. The implementation class of each session must be processed by this class.
+ * <p>
+ * 需要注意的是，一个被控会话只可以提供给一个主控会话使用，当主控会话断开连接之后，被控才会重新准备好新主控的连接。
+ * <p>
+ * It should be noted that a controlled session can only be used by a master session. When the master session is disconnected, the controlled session will prepare a new master connection again.
  *
  * @author zhao
  */
@@ -38,17 +44,16 @@ public abstract class ControlledSession implements Controlled, Host, Session {
     private final static String INIT_INFO = "Successfully initialized the server";
     private final static String INIT_ERROR = "Controlled initialization failed";
     private final static String STOP_WARN = "The current session has stopped running";
-    private static ServerSocket serverSocket;
+    private final ServerSocket serverSocket;
+    protected Date startDate;
     protected Socket accept = null;
     protected InputStream inputStream = null;
     protected OutputStream outputStream = null;
     protected boolean Running = false;
 
-    protected ControlledSession() {
+    protected ControlledSession(int port) {
         try {
-            if (serverSocket == null) {
-                serverSocket = new ServerSocket(ConfigureConstantArea.CONTROLLED_PORT);
-            }
+            serverSocket = new ServerSocket(port);
             ConfigureConstantArea.LOGGER.log(Level.INFO, INIT_INFO);
         } catch (IOException e) {
             ConfigureConstantArea.LOGGER.log(Level.SEVERE, INIT_ERROR);
@@ -69,10 +74,10 @@ public abstract class ControlledSession implements Controlled, Host, Session {
             ControlledSession session = DialogueManager.getSession(sessionNum);
             if (session == null) {
                 if (sessionNum == DialogueManager.CONTROLLED_CONSOLE_SESSION) {
-                    session = new ConsoleSession();
+                    session = new ConsoleSession(ConfigureConstantArea.CONTROLLED_PORT);
                     DialogueManager.registerSession(session, sessionNum);
                 } else if (sessionNum == DialogueManager.CONTROLLED_FILE_SESSION) {
-                    session = new ControlledFileSession();
+                    session = new ControlledFileSession(ConfigureConstantArea.CONTROLLED_PORT);
                     DialogueManager.registerSession(session, sessionNum);
                 }
             }
@@ -121,6 +126,7 @@ public abstract class ControlledSession implements Controlled, Host, Session {
                 ConfigureConstantArea.LOGGER.warning("The accused session has been started, so you do not need to start it!");
                 return;
             }
+            this.startDate = new Date();
         }
         try {
             ConfigureConstantArea.LOGGER.log(Level.INFO, "The accused is ready to start connection.");
@@ -212,6 +218,8 @@ public abstract class ControlledSession implements Controlled, Host, Session {
         }
         ConfigureConstantArea.LOGGER.info("The operation of terminating the controlled session has been completed. You can manually close the current session. Of course, if you do not close the session, the session will be automatically closed when the next master control request is sent.");
         this.Running = false;
+        this.accept = null;
+        this.startDate = null;
     }
 
     /**
@@ -252,6 +260,46 @@ public abstract class ControlledSession implements Controlled, Host, Session {
      * <p>
      * A new session object with the same function as the current session will not have any relationship with the original session
      */
+    public abstract ControlledSession cloneSession(int port);
+
+    /**
+     * 获取到连接至该被控会话的主控信息
+     * <p>
+     * Obtain the master control information connected to the controlled session
+     *
+     * @return 该函数在会话运行时可以获取到该会话建立连接的主控信息，如果返回null，则代表当前被控会话没有运行或没有获取到连接。
+     * <p>
+     * This function can obtain the master control information of the session when the session is running. If null is returned, it means that the current controlled session is not running or the connection is not obtained.
+     */
     @Override
-    public abstract ControlledSession cloneSession();
+    public InetAddress ConnectedMaster() {
+        if (this.accept == null) return null;
+        else {
+            if (this.accept.isClosed()) {
+                return null;
+            } else {
+                return this.accept.getInetAddress();
+            }
+        }
+    }
+
+    /**
+     * @return 主机的启动日期，当主机启动之后这里将会返回日期时间，如果主机没有启动，这里将会返回 null
+     * <p>
+     * The start date of the host. When the host is started, the date and time will be returned here. If the host is not started, null will be returned here
+     */
+    @Override
+    public Date getStartDate() {
+        return this.startDate;
+    }
+
+    /**
+     * @return 运行时长，从上一次启动开始到当下的时间间隔，注意，如果停止，该参数返回0
+     * <p>
+     * The running time is long. The time interval from the last startup to the current one. Note that if it is stopped, this parameter returns 0
+     */
+    @Override
+    public long getRunTimeMS() {
+        return isRunning() ? System.currentTimeMillis() - this.startDate.getTime() : 0;
+    }
 }

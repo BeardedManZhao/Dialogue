@@ -6,6 +6,7 @@ import dialogue.core.controlled.ControlledSession;
 import dialogue.core.master.MasterFileSession;
 import dialogue.core.master.MasterSession;
 
+import java.net.InetAddress;
 import java.util.Scanner;
 import java.util.logging.Level;
 
@@ -35,6 +36,19 @@ public final class MAIN {
                 if ("exit".equalsIgnoreCase(command)) {
                     status = false;
                     continue;
+                } else if ("state".equalsIgnoreCase(command)) {
+                    InetAddress inetAddress = instance.ConnectedControlled();
+                    if (inetAddress != null) {
+                        System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的被控主机名称\t:\t" + inetAddress.getHostName());
+                        System.out.println("state >>> 当前连接的被控主机标识\t:\t" + inetAddress.getCanonicalHostName());
+                        System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
+                        System.out.println("state >>> 当前连接的被控主机状态\t:\tActive");
+                    } else {
+                        System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的被控主机状态\t:\tNo connection");
+                    }
+                    continue;
                 }
                 System.out.println(instance.runCommand(command));
                 Thread.sleep(512);
@@ -51,6 +65,19 @@ public final class MAIN {
                 if ("exit".equalsIgnoreCase(s)) {
                     status = false;
                     instance.stop();
+                    System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                } else if ("state".equalsIgnoreCase(s)) {
+                    InetAddress inetAddress = instance.ConnectedMaster();
+                    if (inetAddress != null) {
+                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的主控主机名称\t:\t" + inetAddress.getHostName());
+                        System.out.println("state >>> 当前连接的主控主机标识\t:\t" + inetAddress.getCanonicalHostName());
+                        System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
+                        System.out.println("state >>> 当前连接的主控主机状态\t:\tActive");
+                    } else {
+                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的主控主机状态\t:\tNo connection");
+                    }
                 }
             }
         }

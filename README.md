@@ -34,18 +34,6 @@ created or terminated according to the situation.
 Whether it is a master session or a controlled session, it can be obtained through the getInstance function. After
 obtaining it, you need to start the session with the start function!.
 
-### What is an actuator
-
-Another important role in the execution of a session is the executor. The executor is a device managed by the session.
-The executor contains the specific execution logic of the command. The session will select the executor to execute the
-corresponding operation according to the communication content. All executors are stored and managed uniformly. However,
-the executors supported by different sessions are different, but users do not need to worry about these, because the
-executor is managed and used by the session, The user does not need to consider anything about the actuator.
-
-It is worth noting that the executor is uniformly stored and managed by the executor manager. For flexibility, the
-manager (dialogue. core. actor. ActuarirManager) provides functions such as logging off and registering new executors.
-However, the use of these functions has certain risks. Please be careful!
-
 ### Session List
 
 | Session Type                                   | Session number             | Conversation function                            |
@@ -56,6 +44,33 @@ However, the use of these functions has certain risks. Please be careful!
 | dialogue.core.controlled.ControlledSession     | null                       | 被控会话的统一抽象，实现了被控会话的生命周期的管理逻辑                      |
 | dialogue.core.controlled.ConsoleSession        | CONTROLLED_CONSOLE_SESSION | 被控会话-终端会话，实现了将终端命令执行于处理的操作逻辑                     |
 | dialogue.core.controlled.ControlledFileSession | CONTROLLED_FILE_SESSION    | 被控会话文件传输会话，拓展于被控终端会话，有着文件的接受与传输的实现，包含终端会话的所有功能   |
+
+## What is an actuator
+
+Another important role in the execution of a session is the executor. The executor is a device managed by the session.
+The executor contains the specific execution logic of the command. The session will select the executor to execute the
+corresponding operation according to the communication content. All executors are stored and managed uniformly. However,
+the executors supported by different sessions are different, but users do not need to worry about these, because the
+executor is managed and used by the session, The user does not need to consider anything about the actuator.
+
+It is worth noting that the executor is uniformly stored and managed by the executor manager. For flexibility, the
+manager (dialogue.core.actuator.ActuatorManager) provides functions such as logging off and registering new executors.
+However, the use of these functions has certain risks. Please be careful!
+
+### Actuator list
+
+| Actuator type                                     | Actuator command | Session to which the actuator belongs | function                                                   |
+|---------------------------------------------------|------------------|---------------------------------------|------------------------------------------------------------|
+| dialogue.core.actuator.MasterGetFileActuator      | get              | MASTER_FILE_SESSION                   | Receive documents from controlled equipment                |
+| dialogue.core.actuator.ControlledGetFileActuator  | get              | CONTROLLED_FILE_SESSION               | Sending files to the master control device                 |
+| dialogue.core.actuator.MasterGetsDirActuator      | gets             | MASTER_FILE_SESSION                   | Receive a batch of documents from the controlled equipment |
+| dialogue.core.actuator.ControlledGetsDirActuator  | gets             | CONTROLLED_FILE_SESSION               | Send a batch of files to the master control device         |
+| dialogue.core.actuator.MasterLookFileActuator     | look             | MASTER_FILE_SESSION                   | View the contents of a file in the controlled device       |
+| dialogue.core.actuator.ControlledLookFileActuator | look             | CONTROLLED_FILE_SESSION               | Transfer file data to the master device                    |
+| dialogue.core.actuator.MasterPutFileActuator      | put              | MASTER_FILE_SESSION                   | Sending files to controlled equipment                      |
+| dialogue.core.actuator.ControlledPutFileActuator  | put              | CONTROLLED_FILE_SESSION               | Receive files from the master control device               |
+| dialogue.core.actuator.MasterPutsDirActuator      | puts             | MASTER_FILE_SESSION                   | Send a batch of documents to the controlled equipment      |
+| dialogue.core.actuator.ControlledPutsDirActuator  | puts             | CONTROLLED_FILE_SESSION               | Receive a batch of files from the master control device    |
 
 # Example of operation
 
@@ -72,7 +87,7 @@ The startup class (dialog. start. MAIN) is a simple API call implementation for 
 obtain the prepared Java program of dialogue in the warehouse, or directly start the corresponding startup class in the
 source code.
 
-Or copy the following startup class source code to the project project that has imported dialog to start.
+Or copy the following startup class source code to the project that has imported dialog to start.
 
 ```java
 package dialogue.start;
@@ -83,11 +98,13 @@ import dialogue.core.controlled.ControlledSession;
 import dialogue.core.master.MasterFileSession;
 import dialogue.core.master.MasterSession;
 
+import java.net.InetAddress;
 import java.util.Scanner;
 import java.util.logging.Level;
 
 /**
- * 这里是启动该类源代码
+ * 启动类
+ *
  * @author zhao
  */
 public final class MAIN {
@@ -111,6 +128,19 @@ public final class MAIN {
                 if ("exit".equalsIgnoreCase(command)) {
                     status = false;
                     continue;
+                } else if ("state".equalsIgnoreCase(command)) {
+                    InetAddress inetAddress = instance.ConnectedControlled();
+                    if (inetAddress != null) {
+                        System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的被控主机名称\t:\t" + inetAddress.getHostName());
+                        System.out.println("state >>> 当前连接的被控主机标识\t:\t" + inetAddress.getCanonicalHostName());
+                        System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
+                        System.out.println("state >>> 当前连接的被控主机状态\t:\tActive");
+                    } else {
+                        System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的被控主机状态\t:\tNo connection");
+                    }
+                    continue;
                 }
                 System.out.println(instance.runCommand(command));
                 Thread.sleep(512);
@@ -127,6 +157,19 @@ public final class MAIN {
                 if ("exit".equalsIgnoreCase(s)) {
                     status = false;
                     instance.stop();
+                    System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                } else if ("state".equalsIgnoreCase(s)) {
+                    InetAddress inetAddress = instance.ConnectedMaster();
+                    if (inetAddress != null) {
+                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的主控主机名称\t:\t" + inetAddress.getHostName());
+                        System.out.println("state >>> 当前连接的主控主机标识\t:\t" + inetAddress.getCanonicalHostName());
+                        System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
+                        System.out.println("state >>> 当前连接的主控主机状态\t:\tActive");
+                    } else {
+                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的主控主机状态\t:\tNo connection");
+                    }
                 }
             }
         }
@@ -225,19 +268,127 @@ public class Test {
 }
 ```
 
+## Session clone
+
+When a session cannot meet the requirements of remote operation, you can use the session cloning technology to clone
+many sessions with the same function. The functions of these sessions are the same, but the data between them will not
+interfere with each other, so that each session can be connected to a new session separately for new services.
+
+### Master Session clone
+
+Each master session can only connect to one controlled session. When the master is connected to the controlled session,
+the master cannot provide connection services for other controlled sessions. Therefore, you can use cloning to clone a
+master session, and use the cloned new session to connect to the new controlled session, so that multiple sessions can
+be connected at the same time.
+
+As shown below, the master successfully created a new master through cloning, and operated the new master to achieve the
+requirement of simultaneous connection.
+
+```java
+package dialogue.start;
+
+import dialogue.core.master.MasterFileSession;
+import dialogue.core.master.MasterSession;
+
+import java.net.InetAddress;
+
+/**
+ * 测试用例
+ *
+ * @author zhao
+ */
+public class Test {
+
+    public static void main(String[] args) {
+        // 获取到第一个主控会话对象
+        MasterSession instance = MasterFileSession.getInstance();
+        // 以第一个会话为原型，克隆出一个新会话，这里的新会话对象与原会话对象互不干扰
+        MasterSession instance1 = instance.cloneSession();
+
+        // 启动主控会话 同时提供被控设备的IP和被控会话端口
+        // 端口在配置文件中可以进行设置，这里我们设置为了10003
+        instance1.start("192.168.1.25", "10003");
+        instance.start("192.168.1.15", "10003");
+
+        // 获取到 与 instance 主控连接的被控会话信息
+        InetAddress inetAddress = instance.ConnectedControlled();
+        if (inetAddress != null) System.out.println(inetAddress);
+
+        // 开始对两个不同的会话 执行打开记事本命令
+        String s = instance.runCommand("cmd /c notepad");
+        System.out.println("* 执行结果 >>> " + s);
+        String s1 = instance1.runCommand("cmd /c notepad");
+        System.out.println("* 执行结果 >>> " + s1);
+        // 执行 put 命令 将一个文件 远程传输给其中的一个被控
+        String s2 = instance.runCommand("put D:\\MyGitHub\\Dialogue\\out\\artifacts\\Dialogue_jar\\conf\\conf.properties conf\\conf.properties");
+        System.out.println(s2);
+
+        // 关闭主控会话
+        instance.stop();
+        instance1.stop();
+
+        // 当主控会话关闭之后，与主控会话连接的被控会话信息也获取不到了
+        InetAddress inetAddress1 = instance.ConnectedControlled();
+        System.out.println(inetAddress1);
+    }
+}
+```
+
+### Controlled Session clone
+
+When a controlled session is being used, it cannot provide execution services for other masters. It can only serve the
+new master when the connection is disconnected this time. Therefore, session cloning needs to be used to enable
+controlled services on multiple ports at the same time, so that multiple ports can serve multiple masters at the same
+time, realizing the requirement of simultaneous connection
+
+```java
+package dialogue.start;
+
+import dialogue.core.controlled.ControlledFileSession;
+import dialogue.core.controlled.ControlledSession;
+
+/**
+ * 测试用例
+ *
+ * @author zhao
+ */
+public class Test {
+
+    public static void main(String[] args) throws InterruptedException {
+        // 获取到第一个被控会话 该会话将会在配置文件中指定的端口开启服务
+        ControlledSession instance1 = ControlledFileSession.getInstance();
+        // 启动第一个会话
+        new Thread(instance1::start).start();
+        // 克隆出一个新的被控，同时指定新端口
+        ControlledSession instance2 = instance1.cloneSession(10241);
+        // 启动第二个会话
+        new Thread(instance2::start).start();
+        // 保持被控会话的运行，避免被立刻关闭
+        Thread.sleep(102400);
+        // 获取到两个被控会话的连接信息 从这里可以看到，两个会话被不同的设备连接了
+        System.out.println("会话1所连接的主控设备名称：" + instance1.ConnectedMaster().getHostName());
+        System.out.println("会话2所连接的主控设备名称：" + instance2.ConnectedMaster().getHostName());
+        // 执行完毕之后可以关闭会话
+        instance1.stop();
+        instance2.stop();
+    }
+}
+```
+
 ## configuration file
 
 There is a conf.properties file in the conf directory under the current directory, which is the corresponding
 configuration file. The configuration items will be indicated below, and you can refer to the required ones.
 
-| Attribute Name              | Default value | Supported versions | function                              |
-|-----------------------------|---------------|--------------------|---------------------------------------|
-| controlled.port             | 10001         | v1.0               | 被控会话在启动的时候所打开的端口                      |
-| logger.level                | INFO          | v1.0               | 系统日志数据的输出级别                           |
-| tcp.buffer.max.size         | 65536         | v1.0               | 数据传输过程中，一个数据包的最大长度                    |
-| tcp.file.port               | 10002         | v1.0               | 文件传输通道端口                              |
-| charset                     | utf-8         | v1.0               | 传输数据与解析数据使用的编码集                       |
-| progress.refresh.threshold  | 256           | v1.0               | 传输数据时进度条的刷新阈值，阈值越大，刷新速度越慢             |
-| progress.compatibility.mode | false         | v1.0               | 传输数据时进度条的兼容情况，设置为true，可以应对更多不兼容进度条的情况 |
-| file.progress.event         | percentage    | v1.0               | 传输数据时进度条的类型，默认是按照百分比显示传输进度            |
-| progress.color.display      | true          | v1.0               | 进度条中的颜色显示，如果设置为true可以为进度条渲染颜色         |
+| Attribute Name              | Default value | Supported versions | function                                                                                                                 |
+|-----------------------------|---------------|--------------------|--------------------------------------------------------------------------------------------------------------------------|
+| controlled.port             | 10001         | v1.0               | The port opened when the controlled session starts                                                                       |
+| logger.level                | INFO          | v1.0               | Output level of system log data                                                                                          |
+| tcp.buffer.max.size         | 65536         | v1.0               | The maximum length of a data packet during data transmission                                                             |
+| tcp.file.port               | 10002         | v1.0               | File transfer channel port                                                                                               |
+| charset                     | utf-8         | v1.0               | Encoding set used for transmitting and parsing data                                                                      |
+| progress.refresh.threshold  | 256           | v1.0               | The refresh threshold of the progress bar when transmitting data. The larger the threshold, the slower the refresh speed |
+| progress.compatibility.mode | false         | v1.0               | The compatibility of progress bars during data transmission is set to true to cope with more incompatible progress bars  |
+| file.progress.event         | percentage    | v1.0               | The type of progress bar when transferring data. The default is to display the transfer progress by percentage           |
+| progress.color.display      | true          | v1.0               | Color display in progress bar. If it is set to true, it can render color for progress bar                                |
+

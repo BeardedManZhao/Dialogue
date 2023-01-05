@@ -31,7 +31,7 @@ public class MasterGetsDirActuator extends MasterGetFileActuator {
      * @return 不同状态码对应的结果数据
      * @throws IOException 文件读取异常
      */
-    private static String getString(int size, DataInputStream dataInputStream) throws IOException {
+    private static String getString(long size, DataInputStream dataInputStream) throws IOException {
         if (size == -1) {
             // 这个情况代表发生了错误，直接将错误信息返回出去
             String error = dataInputStream.readUTF();
@@ -67,8 +67,8 @@ public class MasterGetsDirActuator extends MasterGetFileActuator {
     public String runActuatorCommand(String command, Matcher matcher) throws IOException {
         // 获取到下载到本机的新目录路径
         if (matcher.find() && matcher.find()) {
-            String filePath = matcher.group(1);
-            File file = new File(filePath);
+            String dirPath = matcher.group(1);
+            File file = new File(dirPath);
             // 判断当前目录是否存在
             if (file.exists() && file.isDirectory()) {
                 // 如果存在就开始传递命令
@@ -79,7 +79,7 @@ public class MasterGetsDirActuator extends MasterGetFileActuator {
                 DataInputStream dataInputStream = new DataInputStream(accept.getInputStream());
                 DataOutputStream dataOutputStream = new DataOutputStream(accept.getOutputStream());
                 // 准备进度条
-                int size = dataInputStream.readInt();
+                long size = dataInputStream.readLong();
                 if (ConfigureConstantArea.FILE_PROGRESS != null) {
                     // 接受到文件之后开始下一个文件的大小或状态码：-1代表发生错误 -2代表发送完毕
                     while (size >= -2) {
@@ -91,10 +91,10 @@ public class MasterGetsDirActuator extends MasterGetFileActuator {
                         ConfigureConstantArea.LOGGER.info(fileName + " Start downloading.....");
                         // 如果都不是 那么， size 就代表当前文件数据的大小
                         ConfigureConstantArea.FILE_PROGRESS.setMaxSize(size);
-                        ConfigureConstantArea.FILE_PROGRESS.function1(0);
                         // 开始传输数据
-                        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(filePath + '/' + fileName));
+                        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(dirPath + '/' + fileName));
                         byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
+                        ConfigureConstantArea.FILE_PROGRESS.function1(0);
                         int offset;
                         while ((offset = dataInputStream.read(buffer)) > 0) {
                             ConfigureConstantArea.FILE_PROGRESS.function2(offset);
@@ -107,7 +107,7 @@ public class MasterGetsDirActuator extends MasterGetFileActuator {
                                 // 告知被控已经准备好接受下一次数据
                                 dataOutputStream.writeUTF(OK_2);
                                 // 开始读取下一个状态的数值
-                                size = dataInputStream.readInt();
+                                size = dataInputStream.readLong();
                                 // 开始下一个文件的获取
                                 break;
                             }
@@ -124,7 +124,7 @@ public class MasterGetsDirActuator extends MasterGetFileActuator {
                         String fileName = dataInputStream.readUTF();
                         ConfigureConstantArea.LOGGER.info(fileName + " Start downloading.....");
                         // 开始传输数据
-                        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(filePath + '/' + fileName));
+                        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(dirPath + '/' + fileName));
                         byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
                         int offset;
                         while ((offset = dataInputStream.read(buffer)) > 0) {
@@ -137,7 +137,7 @@ public class MasterGetsDirActuator extends MasterGetFileActuator {
                                 // 告知被控已经准备好接受下一次数据
                                 dataOutputStream.writeUTF(OK_2);
                                 // 开始读取下一个状态的数值
-                                size = dataInputStream.readInt();
+                                size = dataInputStream.readLong();
                                 // 开始下一个文件的获取
                                 break;
                             }

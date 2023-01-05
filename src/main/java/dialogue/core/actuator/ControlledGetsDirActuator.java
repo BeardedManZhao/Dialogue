@@ -42,6 +42,7 @@ public class ControlledGetsDirActuator extends ControlledGetFileActuator {
         // 首先找到目录路径
         if (matcher.find()) {
             String dirPath = matcher.group(1);
+            ConfigureConstantArea.LOGGER.info(dirPath);
             File file = new File(dirPath);
             Socket fileSocket = new Socket(accept.getInetAddress().getHostName(), ConfigureConstantArea.FILE_PORT);
             DataOutputStream dataOutputStream = new DataOutputStream(fileSocket.getOutputStream());
@@ -56,11 +57,14 @@ public class ControlledGetsDirActuator extends ControlledGetFileActuator {
                             continue;
                         }
                         String name = listFile.getName();
+                        if (name.length() == 0) {
+                            continue;
+                        }
                         new Thread(() -> {
                             try {
                                 ConfigureConstantArea.LOGGER.info(name);
                                 // 获取到当前文件的大小，返回给主控
-                                dataOutputStream.writeInt((int) listFile.length());
+                                dataOutputStream.writeLong(listFile.length());
                                 // 获取到当前文件的名称，返回给主控
                                 dataOutputStream.writeUTF(name);
                                 // 开始传输数据
@@ -77,7 +81,7 @@ public class ControlledGetsDirActuator extends ControlledGetFileActuator {
                         ConfigureConstantArea.LOGGER.info(dataInputStream.readUTF());
                     }
                     // 发送完毕，返回 -2
-                    dataOutputStream.writeInt(-2);
+                    dataOutputStream.writeLong(-2);
                     dataOutputStream.flush();
                     dataOutputStream.close();
                     IOUtils.close(fileSocket);
@@ -85,7 +89,7 @@ public class ControlledGetsDirActuator extends ControlledGetFileActuator {
                     return ControlledSession.SEND_FILE_BYTE;
                 } else {
                     // 这个情况代表有错误，返回错误码
-                    dataOutputStream.writeInt(-1);
+                    dataOutputStream.writeLong(-1);
                     dataOutputStream.flush();
                     // 然后返回错误数据
                     dataOutputStream.writeUTF("Access to this directory is denied. " + dirPath);
@@ -97,7 +101,7 @@ public class ControlledGetsDirActuator extends ControlledGetFileActuator {
                 }
             } else {
                 // 这个情况代表有错误，返回错误码
-                dataOutputStream.writeInt(-1);
+                dataOutputStream.writeLong(-1);
                 dataOutputStream.flush();
                 // 然后返回错误数据
                 dataOutputStream.writeUTF("The file directory does not exist, or the directory you specified is not a directory. " + dirPath);

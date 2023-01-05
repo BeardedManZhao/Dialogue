@@ -38,6 +38,7 @@ public class MasterFileSession extends TCPSession {
     protected MasterGetFileActuator masterGetFileActuator;
     protected MasterPutFileActuator masterPutFileActuator;
     protected MasterGetsDirActuator masterGetsDirActuator;
+    protected MasterPutsDirActuator masterPutsDirActuator;
 
     protected MasterFileSession() {
     }
@@ -61,10 +62,12 @@ public class MasterFileSession extends TCPSession {
         this.masterGetFileActuator = new MasterGetFileActuator(fileSocket, outputStream);
         this.masterPutFileActuator = new MasterPutFileActuator(fileSocket, outputStream);
         this.masterGetsDirActuator = new MasterGetsDirActuator(fileSocket, outputStream);
+        this.masterPutsDirActuator = new MasterPutsDirActuator(fileSocket, outputStream);
         ActuatorManager.registerMasterActuator(masterLookFileActuator);
         ActuatorManager.registerMasterActuator(masterGetFileActuator);
         ActuatorManager.registerMasterActuator(masterPutFileActuator);
         ActuatorManager.registerMasterActuator(masterGetsDirActuator);
+        ActuatorManager.registerMasterActuator(masterPutsDirActuator);
     }
 
     /**
@@ -82,6 +85,7 @@ public class MasterFileSession extends TCPSession {
         ActuatorManager.unMasterRegister(this.masterLookFileActuator.getName());
         ActuatorManager.unMasterRegister(this.masterPutFileActuator.getName());
         ActuatorManager.unMasterRegister(this.masterGetsDirActuator.getName());
+        ActuatorManager.unMasterRegister(this.masterPutsDirActuator.getName());
     }
 
     /**

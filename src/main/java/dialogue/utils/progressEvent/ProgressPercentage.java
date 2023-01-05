@@ -31,10 +31,10 @@ public class ProgressPercentage extends ProgressFileNumber {
         count += type;
         if (++batch == ConfigureConstantArea.PROGRESS_REFRESH_THRESHOLD) {
             batch = 0;
-            if (type < maxSize) {
-                exc((ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE ? "Getting data.......\n%" : "%") + ((count / (double) maxSize) * 100), COLOR_YELLOW);
+            if (count < maxSize) {
+                exc((ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE ? "Getting data.......\n%" : "%") + ((count / maxSize) * 100), COLOR_YELLOW);
             } else {
-                exc("%100", COLOR_YELLOW);
+                exc("%98", COLOR_YELLOW);
             }
         }
     }

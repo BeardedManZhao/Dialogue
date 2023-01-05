@@ -40,20 +40,6 @@ public class DialogueManager implements Session {
         }
     }
 
-    /**
-     * 将当前会话克隆一个出来，使得一种会话可以提供给多个网络连接使用，需要注意的是，克隆出来的会话将不会被管理者所管理。
-     * <p>
-     * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
-     *
-     * @return 一个与当前会话功能一致的新会话对象，不会与原会话有任何的关系
-     * <p>
-     * A new session object with the same function as the current session will not have any relationship with the original session
-     */
-    @Override
-    public Session cloneSession() {
-        return this;
-    }
-
     @Override
     public boolean isRunning() {
         return true;

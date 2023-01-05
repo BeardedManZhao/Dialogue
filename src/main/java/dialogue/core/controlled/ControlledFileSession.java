@@ -26,6 +26,7 @@ public class ControlledFileSession extends ConsoleSession {
     protected ControlledGetFileActuator controlledGetActuator;
     protected ControlledPutFileActuator controlledPutFileActuator;
     protected ControlledGetsDirActuator controlledGetsDirActuator;
+    protected ControlledPutsDirActuator controlledPutsDirActuator;
 
     private final ProgressEvent<Socket, OutputStream, InputStream> INIT_ProgressEvent = new ProgressEvent<Socket, OutputStream, InputStream>() {
         private Socket tempSocket;
@@ -48,14 +49,17 @@ public class ControlledFileSession extends ConsoleSession {
             controlledLookFileActuator = new ControlledLookFileActuator(tempSocket, type, tempOut);
             controlledPutFileActuator = new ControlledPutFileActuator(tempSocket, type, tempOut);
             controlledGetsDirActuator = new ControlledGetsDirActuator(tempSocket, type, tempOut);
+            controlledPutsDirActuator = new ControlledPutsDirActuator(tempSocket, type, tempOut);
             ActuatorManager.registerControlledActuator(controlledGetActuator);
             ActuatorManager.registerControlledActuator(controlledLookFileActuator);
             ActuatorManager.registerControlledActuator(controlledPutFileActuator);
             ActuatorManager.registerControlledActuator(controlledGetsDirActuator);
+            ActuatorManager.registerControlledActuator(controlledPutsDirActuator);
         }
     };
 
-    protected ControlledFileSession() {
+    protected ControlledFileSession(int port) {
+        super(port);
     }
 
     public static ControlledSession getInstance() {
@@ -90,6 +94,7 @@ public class ControlledFileSession extends ConsoleSession {
         ActuatorManager.unControlledRegister(this.controlledLookFileActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledPutFileActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledGetsDirActuator.getName());
+        ActuatorManager.unControlledRegister(this.controlledPutsDirActuator.getName());
     }
 
     /**
@@ -136,12 +141,15 @@ public class ControlledFileSession extends ConsoleSession {
      * <p>
      * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
      *
+     * @param port 该被控会话所使用的新端口，当原会话不能够满足主控连接数量时，您可以在此处手动开启一个新的被控端口。
+     *             <p>
+     *             The new port used by the controlled session. When the original session cannot meet the number of master connections, you can manually open a new controlled port here.
      * @return 一个与当前会话功能一致的新会话对象，不会与原会话有任何的关系
      * <p>
      * A new session object with the same function as the current session will not have any relationship with the original session
      */
     @Override
-    public ControlledSession cloneSession() {
-        return new ControlledFileSession();
+    public ControlledSession cloneSession(int port) {
+        return new ControlledFileSession(port);
     }
 }

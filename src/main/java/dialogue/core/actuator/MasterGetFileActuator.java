@@ -81,12 +81,12 @@ public class MasterGetFileActuator implements Actuator {
                 // 接收到后开启数据流
                 DataInputStream inputStream = new DataInputStream(accept.getInputStream());
                 // 判断状态，如果这里返回的不是-1，那么就是成功了，稍后会返回文件数据，而这里的数值就是文件的大小
-                int size = inputStream.readInt();
+                long size = inputStream.readLong();
                 if (ConfigureConstantArea.FILE_PROGRESS != null) {
-                    ConfigureConstantArea.FILE_PROGRESS.function1(0);
                     if (size != -1) {
                         // 代表没有问题，开始接受文件数据
                         ConfigureConstantArea.FILE_PROGRESS.setMaxSize(size);
+                        ConfigureConstantArea.FILE_PROGRESS.function1(0);
                         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(downLoadPath));
                         byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
                         int offset;
@@ -132,78 +132,4 @@ public class MasterGetFileActuator implements Actuator {
             return ERROR;
         }
     }
-
-
-//
-//    /**
-//     * @param command 需要执行的命令参数
-//     *                <p>
-//     *                Command parameters to be executed
-//     * @param matcher 命令匹配器，通过该匹配器获取到命令中的所需参数
-//     *                <p>
-//     *                Command matcher, through which the required parameters in the command can be obtained
-//     * @return 运行之后的结果的字符串形式
-//     * <p>
-//     * String form of the result after running
-//     */
-//    @Override
-//    public String runActuatorCommand(String command, Matcher matcher) throws IOException {
-//        // get 目标文件 下载位置
-//        if (matcher.find() && matcher.find()) {
-//            String downLoadPath = matcher.group(1);
-//            if (downLoadPath != null) {
-//                outputStream.write(command.getBytes(ConfigureConstantArea.CHARSET));
-//                outputStream.flush();
-//                ConfigureConstantArea.LOGGER.info("downloading....");
-//                Socket accept = fileSocket.accept();
-//                DataInputStream inputStream = new DataInputStream(accept.getInputStream());
-//                // 判断状态
-//                String read = inputStream.readUTF();
-//                ConfigureConstantArea.LOGGER.info(read);
-//                if (ConfigureConstantArea.FILE_PROGRESS != null) {
-//                    ConfigureConstantArea.FILE_PROGRESS.setMaxSize(ConfigureConstantArea.TCP_BUFFER_MAX_SIZE << 10);
-//                    ConfigureConstantArea.FILE_PROGRESS.function1(0);
-//                    if (ConsoleSession.SEND_FILE_ERROR.equals(read)) {
-//                        // 这个情况代表本次文件读取有错误，一会传递的是错误信息，而不是文件
-//                        ConfigureConstantArea.FILE_PROGRESS.function3(0);
-//                        return inputStream.readUTF();
-//                    }
-//                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(downLoadPath));
-//                    byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
-//                    int offset;
-//                    while ((offset = inputStream.read(buffer)) > 0) {
-//                        ConfigureConstantArea.FILE_PROGRESS.function2(offset);
-//                        // 当前匹配项就是下载路径
-//                        bufferedOutputStream.write(buffer, 0, offset);
-//                    }
-//                    bufferedOutputStream.flush();
-//                    bufferedOutputStream.close();
-//                    inputStream.close();
-//                    accept.close();
-//                    ConfigureConstantArea.FILE_PROGRESS.function3(0);
-//                } else {
-//                    if (ConsoleSession.SEND_FILE_ERROR.equals(read)) {
-//                        // 这个情况代表本次文件读取有错误，一会传递的是错误信息，而不是文件
-//                        return inputStream.readUTF();
-//                    }
-//                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(downLoadPath));
-//                    byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
-//                    int offset;
-//                    while ((offset = inputStream.read(buffer)) > 0) {
-//                        // 当前匹配项就是下载路径
-//                        bufferedOutputStream.write(buffer, 0, offset);
-//                    }
-//                    bufferedOutputStream.flush();
-//                    bufferedOutputStream.close();
-//                    inputStream.close();
-//                    accept.close();
-//                }
-//                return "file download ok!";
-//            } else {
-//                return ERROR;
-//            }
-//        } else {
-//            return ERROR;
-//        }
-//    }
 }

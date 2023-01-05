@@ -18,11 +18,6 @@ Dialogue 是一个针对远程控制而制造出来的工具，在该框架内�
 会话，是一个设备中的控制台，用于交流的信息，"主控设备"与"被控设备" 成功连接之后就会产生一个唯一会话，这个会话不会被其它设备所干扰，当连接断开后，当前会话将自动关闭，而新会话将根据情况创建或终止。
 不论是主控会话还是被控会话，都可以通过getInstance函数获取到，获取到之后需要进行start函数启动会话！。
 
-### 什么是执行器
-
-在会话的执行中，还有一个重要角色就是执行器，执行器是被会话管理的设备，执行器中包含命令的具体执行逻辑，会话将会根据通信内容选择执行器来执行对应的操作，所有的执行器被统一存储与管理，但是不同会话所支持的执行器是不同的，但是用户不需要担心这些，因为执行器由会话管理与使用，用户不需要考虑任何有关执行器的事情。
-值得注意的是，执行器被执行器管理者统一存储与管理，为了灵活性，管理者(dialogue.core.actuator.ActuatorManager)中提供了注销与注册新执行器等函数，但这些函数的使用时有一定风险的，请慎重！
-
 ### 会话列表
 
 | 会话类型                                           | 会话编号                       | 会话功能                                             |
@@ -34,12 +29,32 @@ Dialogue 是一个针对远程控制而制造出来的工具，在该框架内�
 | dialogue.core.controlled.ConsoleSession        | CONTROLLED_CONSOLE_SESSION | 被控会话-终端会话，实现了将终端命令执行于处理的操作逻辑                     |
 | dialogue.core.controlled.ControlledFileSession | CONTROLLED_FILE_SESSION    | 被控会话文件传输会话，拓展于被控终端会话，有着文件的接受与传输的实现，包含终端会话的所有功能   |
 
+## 什么是执行器
+
+在会话的执行中，还有一个重要角色就是执行器，执行器是被会话管理的设备，执行器中包含命令的具体执行逻辑，会话将会根据通信内容选择执行器来执行对应的操作，所有的执行器被统一存储与管理，但是不同会话所支持的执行器是不同的，但是用户不需要担心这些，因为执行器由会话管理与使用，用户不需要考虑任何有关执行器的事情。
+值得注意的是，执行器被执行器管理者统一存储与管理，为了灵活性，管理者(dialogue.core.actuator.ActuatorManager)中提供了注销与注册新执行器等函数，但这些函数的使用时有一定风险的，请慎重！
+
+### 执行器列表
+
+| 执行器类型                                             | 执行器命令 | 执行器所属会话                 | 执行器功能          |
+|---------------------------------------------------|-------|-------------------------|----------------|
+| dialogue.core.actuator.MasterGetFileActuator      | get   | MASTER_FILE_SESSION     | 从被控设备接收文件      |
+| dialogue.core.actuator.ControlledGetFileActuator  | get   | CONTROLLED_FILE_SESSION | 向主控设备发送文件      |
+| dialogue.core.actuator.MasterGetsDirActuator      | gets  | MASTER_FILE_SESSION     | 从被控设备接收一批文件    |
+| dialogue.core.actuator.ControlledGetsDirActuator  | gets  | CONTROLLED_FILE_SESSION | 向主控设备发送一批文件    |
+| dialogue.core.actuator.MasterLookFileActuator     | look  | MASTER_FILE_SESSION     | 查看被控设备中的某个文件内容 |
+| dialogue.core.actuator.ControlledLookFileActuator | look  | CONTROLLED_FILE_SESSION | 将文件数据传递给主控设备   |
+| dialogue.core.actuator.MasterPutFileActuator      | put   | MASTER_FILE_SESSION     | 向被控设备发送文件      |
+| dialogue.core.actuator.ControlledPutFileActuator  | put   | CONTROLLED_FILE_SESSION | 接收来自主控设备的文件    |
+| dialogue.core.actuator.MasterPutsDirActuator      | puts  | MASTER_FILE_SESSION     | 向被控设备发送一批文件    |
+| dialogue.core.actuator.ControlledPutsDirActuator  | puts  | CONTROLLED_FILE_SESSION | 接收来自主控设备的一批文件  |
+
 # 操作示例
 
 使用方式有两种
 
 - 第一个就是直接启动内置实现好的客户端启动类，将启动类启动之后，根据引导就可以实现通过主控会话远程操作被控设备.
-- 第二个就是使用内部的API手动调用框架，实现主控会话远程操作被控设备。
+- 第二个就是使用内部的API手动调用框架，根据API调用实现通过主控会话远程操作被控设备。
 
 ## 使用启动类
 
@@ -55,11 +70,13 @@ import dialogue.core.controlled.ControlledSession;
 import dialogue.core.master.MasterFileSession;
 import dialogue.core.master.MasterSession;
 
+import java.net.InetAddress;
 import java.util.Scanner;
 import java.util.logging.Level;
 
 /**
- * 这里是启动该类源代码
+ * 启动类
+ *
  * @author zhao
  */
 public final class MAIN {
@@ -83,6 +100,19 @@ public final class MAIN {
                 if ("exit".equalsIgnoreCase(command)) {
                     status = false;
                     continue;
+                } else if ("state".equalsIgnoreCase(command)) {
+                    InetAddress inetAddress = instance.ConnectedControlled();
+                    if (inetAddress != null) {
+                        System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的被控主机名称\t:\t" + inetAddress.getHostName());
+                        System.out.println("state >>> 当前连接的被控主机标识\t:\t" + inetAddress.getCanonicalHostName());
+                        System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
+                        System.out.println("state >>> 当前连接的被控主机状态\t:\tActive");
+                    } else {
+                        System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的被控主机状态\t:\tNo connection");
+                    }
+                    continue;
                 }
                 System.out.println(instance.runCommand(command));
                 Thread.sleep(512);
@@ -99,6 +129,19 @@ public final class MAIN {
                 if ("exit".equalsIgnoreCase(s)) {
                     status = false;
                     instance.stop();
+                    System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                } else if ("state".equalsIgnoreCase(s)) {
+                    InetAddress inetAddress = instance.ConnectedMaster();
+                    if (inetAddress != null) {
+                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的主控主机名称\t:\t" + inetAddress.getHostName());
+                        System.out.println("state >>> 当前连接的主控主机标识\t:\t" + inetAddress.getCanonicalHostName());
+                        System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
+                        System.out.println("state >>> 当前连接的主控主机状态\t:\tActive");
+                    } else {
+                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        System.out.println("state >>> 当前连接的主控主机状态\t:\tNo connection");
+                    }
                 }
             }
         }
@@ -185,6 +228,103 @@ public class Test {
         instance.stop();
         // 然后就可以终止程序或是其它操作了
         System.exit(0);
+    }
+}
+```
+
+## 会话克隆
+
+当一个会话无法满足远程操作的需求的时候，您可以使用会话克隆技术将相同功能的会话克隆出很多个，这些会话的功能是相同的，但是之间的数据是不会互相有干扰的，使得每一个会话都可以单独连接一个新会话，能够进行新服务。
+
+### 主控会话克隆
+
+每一个主控会话只能连接一个被控会话，当主控与被控会话进行连接的时候，主控将无法为其它被控会话提供连接服务，因此您可以使用克隆，将一个主控会话克隆出来，使用克隆的新会话去连接新被控，就可以达到多个会话进行同时连接的效果了。
+如下面所示，主控通过克隆，成功创建出了一个新的主控，并操作新的被控，实现了同时连接的需求。
+
+```java
+package dialogue.start;
+
+import dialogue.core.master.MasterFileSession;
+import dialogue.core.master.MasterSession;
+
+import java.net.InetAddress;
+
+/**
+ * 测试用例
+ *
+ * @author zhao
+ */
+public class Test {
+
+    public static void main(String[] args) {
+        // 获取到第一个主控会话对象
+        MasterSession instance = MasterFileSession.getInstance();
+        // 以第一个会话为原型，克隆出一个新会话，这里的新会话对象与原会话对象互不干扰
+        MasterSession instance1 = instance.cloneSession();
+
+        // 启动主控会话 同时提供被控设备的IP和被控会话端口
+        // 端口在配置文件中可以进行设置，这里我们设置为了10003
+        instance1.start("192.168.1.25", "10003");
+        instance.start("192.168.1.15", "10003");
+
+        // 获取到 与 instance 主控连接的被控会话信息
+        InetAddress inetAddress = instance.ConnectedControlled();
+        if (inetAddress != null) System.out.println(inetAddress);
+
+        // 开始对两个不同的会话 执行打开记事本命令
+        String s = instance.runCommand("cmd /c notepad");
+        System.out.println("* 执行结果 >>> " + s);
+        String s1 = instance1.runCommand("cmd /c notepad");
+        System.out.println("* 执行结果 >>> " + s1);
+        // 执行 put 命令 将一个文件 远程传输给其中的一个被控
+        String s2 = instance.runCommand("put D:\\MyGitHub\\Dialogue\\out\\artifacts\\Dialogue_jar\\conf\\conf.properties conf\\conf.properties");
+        System.out.println(s2);
+
+        // 关闭主控会话
+        instance.stop();
+        instance1.stop();
+
+        // 当主控会话关闭之后，与主控会话连接的被控会话信息也获取不到了
+        InetAddress inetAddress1 = instance.ConnectedControlled();
+        System.out.println(inetAddress1);
+    }
+}
+```
+
+### 被控会话克隆
+
+当一个被控会话正在被使用的时候，其无法为其它主控提供执行服务，只能等到本次连接断开，才可以为新主控进行服务，因此需要使用到会话克隆，在多个端口同时开启被控服务，使得多个端口同时为多个主控进行服务，实现了同时连接的需求
+
+```java
+package dialogue.start;
+
+import dialogue.core.controlled.ControlledFileSession;
+import dialogue.core.controlled.ControlledSession;
+
+/**
+ * 测试用例
+ *
+ * @author zhao
+ */
+public class Test {
+
+    public static void main(String[] args) throws InterruptedException {
+        // 获取到第一个被控会话 该会话将会在配置文件中指定的端口开启服务
+        ControlledSession instance1 = ControlledFileSession.getInstance();
+        // 启动第一个会话
+        new Thread(instance1::start).start();
+        // 克隆出一个新的被控，同时指定新端口
+        ControlledSession instance2 = instance1.cloneSession(10241);
+        // 启动第二个会话
+        new Thread(instance2::start).start();
+        // 保持被控会话的运行，避免被立刻关闭
+        Thread.sleep(102400);
+        // 获取到两个被控会话的连接信息 从这里可以看到，两个会话被不同的设备连接了
+        System.out.println("会话1所连接的主控设备名称：" + instance1.ConnectedMaster().getHostName());
+        System.out.println("会话2所连接的主控设备名称：" + instance2.ConnectedMaster().getHostName());
+        // 执行完毕之后可以关闭会话
+        instance1.stop();
+        instance2.stop();
     }
 }
 ```

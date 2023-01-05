@@ -11,7 +11,9 @@ import java.net.Socket;
 import java.util.regex.Matcher;
 
 /**
- * 主控文件发送执行器，该对象中支持向原曾主机发送文件数据。
+ * 主控文件发送执行器，该对象中支持向原主机中发送文件数据。
+ * <p>
+ * The master file sending actuator supports sending file data to the original host.
  *
  * @author zhao
  */
@@ -95,11 +97,11 @@ public class MasterPutFileActuator implements Actuator {
                         {
                             ProgressFileNumber fileProgress = ConfigureConstantArea.FILE_PROGRESS;
                             if (fileProgress != null) {
-                                fileProgress.setMaxSize((int) localFile.length());
+                                fileProgress.setMaxSize(localFile.length());
                                 fileProgress.function1(0);
                                 byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
                                 int offset;
-                                while ((offset = bufferedInputStream.read(buffer)) != -1) {
+                                while ((offset = (bufferedInputStream.read(buffer))) > 0) {
                                     fileProgress.function2(offset);
                                     dataOutputStream.write(buffer, 0, offset);
                                 }
@@ -111,7 +113,7 @@ public class MasterPutFileActuator implements Actuator {
                         dataOutputStream.flush();
                         bufferedInputStream.close();
                         dataOutputStream.close();
-                        return "File sending completed";
+                        return " File sending completed";
                     } else {
                         // 出现了错误，将错误信息读取出来，然后返回
                         dataOutputStream.flush();

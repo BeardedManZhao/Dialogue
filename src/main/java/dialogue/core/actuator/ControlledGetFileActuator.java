@@ -79,7 +79,7 @@ public class ControlledGetFileActuator implements Actuator {
             try {
                 FileInputStream fileInputStream = new FileInputStream(matcher.group(1));
                 // 将本次的发送信息状态提供给主控
-                outputStream1.writeInt(fileInputStream.available());
+                outputStream1.writeLong(fileInputStream.available());
                 ConfigureConstantArea.LOGGER.info(OK_2);
                 // 将数据发送给主控
                 IOUtils.copy(fileInputStream, outputStream1, true);
@@ -87,7 +87,7 @@ public class ControlledGetFileActuator implements Actuator {
                 return ControlledSession.SEND_FILE_BYTE;
             } catch (IOException e) {
                 // 将错误提供给主控
-                outputStream1.writeInt(-1);
+                outputStream1.writeLong(-1);
                 outputStream1.flush();
                 String s = e.toString();
                 ConfigureConstantArea.LOGGER.warning(s);
@@ -103,46 +103,4 @@ public class ControlledGetFileActuator implements Actuator {
             return "ERROR COMMAND " + command + "\nExample: get [filePath] [filePath]";
         }
     }
-
-//    /**
-//     * @param command 需要执行的命令参数
-//     *                <p>
-//     *                Command parameters to be executed
-//     * @param matcher 命令匹配器，通过该匹配器获取到命令中的所需参数
-//     *                <p>
-//     *                Command matcher, through which the required parameters in the command can be obtained
-//     * @return 运行之后的结果的字符串形式
-//     * <p>
-//     * String form of the result after running
-//     */
-//    @Override
-//    public String runActuatorCommand(String command, Matcher matcher) throws IOException {
-//        // get 目标文件 一样要先获取目标文件的数据
-//        if (matcher.find()) {
-//            Socket fileSocket = new Socket(accept.getInetAddress().getHostName(), ConfigureConstantArea.FILE_PORT);
-//            DataOutputStream outputStream1 = new DataOutputStream(fileSocket.getOutputStream());
-//            try {
-//                FileInputStream fileInputStream = new FileInputStream(matcher.group(1));
-//                // 将本次的发送信息状态提供给主控
-//                outputStream1.writeUTF(ControlledSession.SEND_FILE_BYTE);
-//                // 将数据发送给主控
-//                IOUtils.copy(fileInputStream, outputStream1, true);
-//                // 返回成功
-//                return ControlledSession.SEND_FILE_BYTE;
-//            } catch (IOException e) {
-//                // 将错误提供给主控
-//                outputStream1.writeUTF(ControlledSession.SEND_FILE_ERROR);
-//                outputStream1.flush();
-//                outputStream1.writeUTF(e.toString());
-//                outputStream1.flush();
-//                outputStream1.close();
-//                // 返回错误
-//                return ControlledSession.SEND_FILE_ERROR;
-//            } finally {
-//                IOUtils.close(fileSocket);
-//            }
-//        } else {
-//            return "ERROR COMMAND " + command + "\nExample: get [filePath] [filePath]";
-//        }
-//    }
 }

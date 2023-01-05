@@ -24,7 +24,7 @@ public class ProgressFileBar extends ProgressFileNumber {
         if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
             System.out.print("\033[32m" + s1);
         } else {
-            System.out.println(s1);
+            System.out.print(s1);
         }
     }
 

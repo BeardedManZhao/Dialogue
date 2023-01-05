@@ -18,7 +18,8 @@ import java.util.logging.Level;
  */
 public class ConsoleSession extends ControlledSession {
 
-    ConsoleSession() {
+    protected ConsoleSession(int port) {
+        super(port);
     }
 
     public static ControlledSession getInstance() {
@@ -59,12 +60,15 @@ public class ConsoleSession extends ControlledSession {
      * <p>
      * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
      *
+     * @param port 该被控会话所使用的新端口，当原会话不能够满足主控连接数量时，您可以在此处手动开启一个新的被控端口。
+     *             <p>
+     *             The new port used by the controlled session. When the original session cannot meet the number of master connections, you can manually open a new controlled port here.
      * @return 一个与当前会话功能一致的新会话对象，不会与原会话有任何的关系
      * <p>
      * A new session object with the same function as the current session will not have any relationship with the original session
      */
     @Override
-    public ControlledSession cloneSession() {
-        return new ConsoleSession();
+    public ControlledSession cloneSession(int port) {
+        return new ConsoleSession(port);
     }
 }

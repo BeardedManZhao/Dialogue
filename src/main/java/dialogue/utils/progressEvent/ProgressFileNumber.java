@@ -16,14 +16,14 @@ public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integ
     public final static String COLOR_DEF = "\033[0m";
     public final static String COLOR_NO = "";
     protected static final StringBuilder stringBuilder = new StringBuilder(0x40);
-    protected long maxSize = ConfigureConstantArea.TCP_BUFFER_MAX_SIZE;
+    protected double maxSize = ConfigureConstantArea.TCP_BUFFER_MAX_SIZE;
     protected int batch = 0;
-    protected int count = 0;
+    protected long count = 0;
     private int count_Str_Size = COLOR_YELLOW.length();
     private String Fallback = "";
     private String temp;
 
-    public void setMaxSize(int maxSize) {
+    public void setMaxSize(long maxSize) {
         this.maxSize = maxSize;
         temp = "byte / " + maxSize + "byte";
     }
@@ -48,7 +48,7 @@ public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integ
         if (++batch == ConfigureConstantArea.PROGRESS_REFRESH_THRESHOLD) {
             batch = 0;
             if (ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE) {
-                exc("%" + (((double) count / maxSize) * 100) + '\n' + (count += type) + temp, COLOR_YELLOW);
+                exc("%" + ((count / maxSize) * 100) + '\n' + (count += type) + temp, COLOR_YELLOW);
             } else {
                 exc((count += type) + temp, COLOR_YELLOW);
             }
@@ -64,7 +64,7 @@ public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integ
      */
     @Override
     public void function3(Integer type) {
-        exc("\n%" + (((double) count / maxSize) * 100) + '\n' + (count += type) + temp, COLOR_GREEN);
+        exc("\n%" + ((count / maxSize) * 100) + '\n' + (count += type) + temp, COLOR_GREEN);
         if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
             System.out.println("\nSuccessfully read data of [\033[32m" + (count + type) + "\033[0m] bytes in total!");
         } else {
