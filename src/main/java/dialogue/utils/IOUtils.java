@@ -148,4 +148,26 @@ public final class IOUtils {
             }
         }
     }
+
+    /**
+     * 将两个数据流中的数据进行拷贝
+     *
+     * @param inputStream       源数据流
+     * @param outputStream      目标数据输出流
+     * @param CloseStream       输入流被提取完成后是否需要关闭，如果设置为true，代表提取之后自动关闭数据流
+     * @param exceptionProgress 出错逻辑实现，当数据流操作时出现了异常，异常将会传递给事件类中对应的函数内进行处理
+     */
+    public static void copyAndFlush(InputStream inputStream, OutputStream outputStream, boolean CloseStream) throws IOException {
+        byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
+        int offset;
+        while ((offset = inputStream.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, offset);
+            outputStream.flush();
+        }
+        if (CloseStream) {
+            inputStream.close();
+            outputStream.flush();
+            outputStream.close();
+        }
+    }
 }

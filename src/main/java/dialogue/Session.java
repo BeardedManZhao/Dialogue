@@ -27,6 +27,13 @@ public interface Session {
     short MASTER_FILE_SESSION = 2;
 
     /**
+     * 主控会话-持久会话编号，在该会话中，能够实时接收来自对方终端传递的数据，针对一些需要长时间保持连接的命令，该会话将可以实现实时处理功能。
+     * <p>
+     * Master session - persistent session number. In this session, the data transmitted from the opposite terminal can be received in real time. For some commands that need to be connected for a long time, the session can realize real-time processing function.
+     */
+    short MASTER_PERSISTENT_SESSION = 4;
+
+    /**
      * 被控会话-控制台会话编号，在该会话中，能够将命令在终端中执行，并获取到执行结果。
      * <p>
      * Controlled session - console session number. In this session, commands can be executed in the terminal and execution results can be obtained.
@@ -41,11 +48,18 @@ public interface Session {
     short CONTROLLED_FILE_SESSION = 3;
 
     /**
+     * 被控会话-持久会话编号，在该会话中，能够实时获取到被控终端数据，是专注于任何终端命令执行的优化实现。
+     * <p>
+     * Controlled session - persistent session number. In this session, the controlled terminal data can be obtained in real time, which is an optimized implementation focusing on the execution of any terminal command.
+     */
+    short CONTROLLED_PERSISTENT_SESSION = 5;
+
+    /**
      * 会话系统中的会话种类数量，每一种会话有不同的功能与作用，一般来说，会话编号越高，会话功能越强大，但是对应的性能可能会稍微降低，因为会话之间是职责链设计，如果当前会话无法执行命令时，还会将命令传递给父类去实现。
      * <p>
      * The number of session types in the session system. Each session has different functions and functions. Generally speaking, the higher the session number is, the stronger the session function is. However, the corresponding performance may be slightly reduced. Because of the responsibility chain design between sessions, if the current session cannot execute the command, the command will be passed to the parent class for implementation.
      */
-    short SESSION_LENGTH = 4;
+    short SESSION_LENGTH = 6;
 
     /**
      * 获取到一个session对象。

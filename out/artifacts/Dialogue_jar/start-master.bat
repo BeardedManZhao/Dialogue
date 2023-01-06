@@ -1,2 +1,2 @@
 @echo off
-java -jar ./Dialogue.jar master
+java -jar ./Dialogue.jar false master

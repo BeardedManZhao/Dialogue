@@ -42,13 +42,21 @@ public class ConsoleSession extends ControlledSession {
     public String runCommand(String command) {
         ConfigureConstantArea.LOGGER.log(Level.INFO, "run -> " + command);
         try {
-            InputStream inputStream1 = runtime.exec(command).getInputStream();
+            final Process exec = runtime.exec(command);
+            InputStream inputStream1 = exec.getInputStream();
             String stringByStream = IOUtils.getStringByStream(inputStream1);
             inputStream1.close();
             if (stringByStream.length() != 0) {
                 return stringByStream;
             } else {
-                return "Command executed, but no data returned.";
+                InputStream errorStream = exec.getErrorStream();
+                stringByStream = IOUtils.getStringByStream(errorStream);
+                errorStream.close();
+                if (stringByStream.length() != 0) {
+                    return stringByStream;
+                } else {
+                    return "Command executed, but no data returned.";
+                }
             }
         } catch (RuntimeException | IOException e) {
             return "ERROR => " + e;

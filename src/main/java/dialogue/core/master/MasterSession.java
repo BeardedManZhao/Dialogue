@@ -58,6 +58,9 @@ public abstract class MasterSession implements Master, Host, Session {
                 } else if (sessionNum == DialogueManager.MASTER_FILE_SESSION) {
                     session = new MasterFileSession();
                     DialogueManager.registerSession(session, sessionNum);
+                } else if (sessionNum == DialogueManager.MASTER_PERSISTENT_SESSION) {
+                    session = new MasterPersistentSession();
+                    DialogueManager.registerSession(session, sessionNum);
                 }
             }
             return session;

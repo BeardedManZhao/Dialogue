@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,32 +25,27 @@ public final class ConfigureConstantArea {
      * 配置文件目录
      */
     public final static String CONF_FILE_PATH = "./conf/conf.properties";
-
     /**
      * 被控设备端口
      */
     public final static int CONTROLLED_PORT;
-
     /**
      * 工具全局日志对象
      */
     public final static Logger LOGGER = Logger.getLogger("dialogue");
-
     /**
      * 工具全局日志界别对象
      */
     public final static String LOGGER_LEVEL;
-
     /**
      * 主控设备向被控设发送的数据包最大值
      */
     public final static int TCP_BUFFER_MAX_SIZE;
-
     /**
      * 通信文字编码
      */
     public final static String CHARSET;
-
+    public final static Scanner SCANNER;
     /**
      * 文件传输端口，默认是10002
      */
@@ -71,6 +67,13 @@ public final class ConfigureConstantArea {
     public final static boolean PROGRESS_COMPATIBILITY_MODE;
     public final static boolean PROGRESS_COLOR_DISPLAY;
 
+    /**
+     * 持久会话通道端口，在进行交互式的命令时，需要长时间的交互式命令，这个时候需要持久会话，该会话将会开启单独的一个端口进行服务。
+     * <p>
+     * The persistent session channel port requires a long-term interactive command when conducting interactive commands. In this case, a persistent session is required, and a separate port will be opened for service.
+     */
+    public final static int PERSISTENT_SESSION_CHANNEL_PORT;
+
     static {
         File ConfFile = new File(CONF_FILE_PATH);
         FileReader fileReader = null;
@@ -90,10 +93,12 @@ public final class ConfigureConstantArea {
             TCP_BUFFER_MAX_SIZE = Integer.parseInt(properties.getProperty("tcp.buffer.max.size", "65535"));
             FILE_PORT = Integer.parseInt(properties.getProperty("tcp.file.port", "10002"));
             CHARSET = properties.getProperty("charset", "utf-8");
+            SCANNER = new Scanner(System.in, ConfigureConstantArea.CHARSET);
             PROGRESS_REFRESH_THRESHOLD = Integer.parseInt(properties.getProperty("progress.refresh.threshold", "256"));
             PROGRESS_COMPATIBILITY_MODE = Boolean.parseBoolean(properties.getProperty("progress.compatibility.mode", "false"));
             FILE_PROGRESS_STRING = properties.getProperty("file.progress.event", "percentage");
             PROGRESS_COLOR_DISPLAY = Boolean.parseBoolean(properties.getProperty("progress.color.display", "true"));
+            PERSISTENT_SESSION_CHANNEL_PORT = Integer.parseInt(properties.getProperty("persistent.session.channel.port", "10003"));
         }
         if ("bar".equals(FILE_PROGRESS_STRING)) {
             FILE_PROGRESS = ProgressEvent.PROGRESS_FILE_BAR;

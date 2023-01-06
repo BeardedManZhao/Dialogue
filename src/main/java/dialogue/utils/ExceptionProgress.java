@@ -10,6 +10,9 @@ import java.io.IOException;
  * @author zhao
  */
 public class ExceptionProgress implements ProgressEvent<Exception, RuntimeException, IOException> {
+
+    public final static ExceptionProgress NO_ACTION = new ExceptionProgress();
+
     /**
      * 事件监听逻辑实现一号函数，在类中有很多需要实现的函数，这些函数的提供是为了兼顾很多事件的监听，您可以将这些函数放到不同的地方调用
      * 针对Exception的异常进行捕获并进行处理的函数

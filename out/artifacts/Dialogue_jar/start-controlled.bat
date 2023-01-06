@@ -1,2 +1,2 @@
 @echo off
-java -jar ./Dialogue.jar
+java -jar ./Dialogue.jar false

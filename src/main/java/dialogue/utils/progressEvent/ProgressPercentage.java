@@ -2,6 +2,9 @@ package dialogue.utils.progressEvent;
 
 import dialogue.ConfigureConstantArea;
 
+import static dialogue.utils.ConsoleColor.COLOR_GREEN;
+import static dialogue.utils.ConsoleColor.COLOR_YELLOW;
+
 /**
  * 文件进度条显示事件监听器，在这里就是针对文件读写进度的显示事件实现类。
  * <p>

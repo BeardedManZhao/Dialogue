@@ -79,6 +79,9 @@ public abstract class ControlledSession implements Controlled, Host, Session {
                 } else if (sessionNum == DialogueManager.CONTROLLED_FILE_SESSION) {
                     session = new ControlledFileSession(ConfigureConstantArea.CONTROLLED_PORT);
                     DialogueManager.registerSession(session, sessionNum);
+                } else if (sessionNum == DialogueManager.CONTROLLED_PERSISTENT_SESSION) {
+                    session = new ControlledPersistentSession(ConfigureConstantArea.CONTROLLED_PORT);
+                    DialogueManager.registerSession(session, sessionNum);
                 }
             }
             return session;

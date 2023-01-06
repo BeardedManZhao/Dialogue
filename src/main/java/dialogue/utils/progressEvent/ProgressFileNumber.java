@@ -3,6 +3,8 @@ package dialogue.utils.progressEvent;
 import dialogue.ConfigureConstantArea;
 import dialogue.utils.ProgressEvent;
 
+import static dialogue.utils.ConsoleColor.*;
+
 /**
  * 文件传输事件对象，其中包含一个文件的读取大小显示的功能，可以在文件读取的时候进行已读取数据量的显示。
  * <p>
@@ -11,10 +13,6 @@ import dialogue.utils.ProgressEvent;
  * @author zhao
  */
 public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integer> {
-    public final static String COLOR_YELLOW = "\033[33m";
-    public final static String COLOR_GREEN = "\033[32m";
-    public final static String COLOR_DEF = "\033[0m";
-    public final static String COLOR_NO = "";
     protected static final StringBuilder stringBuilder = new StringBuilder(0x40);
     protected double maxSize = ConfigureConstantArea.TCP_BUFFER_MAX_SIZE;
     protected int batch = 0;
