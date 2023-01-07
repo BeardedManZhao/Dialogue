@@ -259,6 +259,9 @@ public abstract class ControlledSession implements Controlled, Host, Session {
      * <p>
      * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
      *
+     * @param port 针对被控会话，需要一个新的端口，因为一个端口只能被一个被控会话使用，在这里指定新会话端口，使得两个被控会话之间没有任何关联
+     *             <p>
+     *             For the controlled session, a new port is required, because a port can only be used by one controlled session. Specify a new session port here, so that there is no association between the two controlled sessions
      * @return 一个与当前会话功能一致的新会话对象，不会与原会话有任何的关系
      * <p>
      * A new session object with the same function as the current session will not have any relationship with the original session

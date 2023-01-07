@@ -6,6 +6,20 @@ Dialogue is a tool made for remote control. Within this framework, there is a ve
 a fault tolerance mechanism at the controlled end. Remote control is carried out through TCP, and a startup function is
 provided. At the same time, API calls can be made manually!
 
+## How to get API
+
+You can obtain the dependencies of this tool library through maven coordinates, or you can use gradle to connect the
+coordinates.
+
+```xml
+
+<dependency>
+    <groupId>io.github.BeardedManZhao</groupId>
+    <artifactId>dialogue</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ## What are master control and controlled
 
 As the name implies, the master is the active control terminal device, representing the device that actively sends
@@ -507,3 +521,6 @@ configuration file. The configuration items will be indicated below, and you can
 | progress.color.display          | true          | v1.0               | Color display in progress bar. If it is set to true, it can render color for progress bar                                |
 | persistent.session.channel.port | 10003         | v1.0               | The persistent session transmission port is the main port for data interaction in the persistent session                 |
 
+<hr>
+
+- Switch to [中文文档](https://github.com/BeardedManZhao/Dialogue/blob/core/README-Chinese.md)

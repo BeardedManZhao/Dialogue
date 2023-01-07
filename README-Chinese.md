@@ -4,6 +4,19 @@
 
 Dialogue 是一个针对远程控制而制造出来的工具，在该框架内，有很强大的主控功能与被控端容错机制，通过TCP进行远程控制，提供了启动函数，同时也可以手动进行API的调用！
 
+## 如何获取API
+
+您可以通过maven坐标获取到本工具库的依赖，当然也可以使用gradle连接该坐标。
+
+```xml
+
+<dependency>
+    <groupId>io.github.BeardedManZhao</groupId>
+    <artifactId>dialogue</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ## 什么是主控和被控
 
 顾名思义，主控就是主动控制端设备，代表主动向被控设备发起控制请求的设备，该设备所属会话中能够通过TCP协议向被控设备发送命令。
@@ -428,3 +441,7 @@ public class Test2 {
 | file.progress.event             | percentage | v1.0 | 传输数据时进度条的类型，默认是按照百分比显示传输进度            |
 | progress.color.display          | true       | v1.0 | 进度条中的颜色显示，如果设置为true可以为进度条渲染颜色         |
 | persistent.session.channel.port | 10003      | v1.0 | 持久会话传输端口，是持久会话中数据交互的主要端口              |
+
+<hr>
+
+- 切换到 [English document](https://github.com/BeardedManZhao/Dialogue)

@@ -1,6 +1,7 @@
 package dialogue.utils.progressEvent;
 
 import dialogue.ConfigureConstantArea;
+import dialogue.utils.ConsoleColor;
 import dialogue.utils.ProgressEvent;
 
 import static dialogue.utils.ConsoleColor.*;
@@ -83,7 +84,9 @@ public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integ
     /**
      * 更新进度条数据
      *
-     * @param type 当前进度条要显示的新数据
+     * @param type  当前进度条要显示的新数据
+     * @param color 本次打印需要使用的颜色字符串
+     * @see ConsoleColor 您可以在这里找到对应的颜色字符串
      */
     protected void exc(String type, String color) {
         String s;

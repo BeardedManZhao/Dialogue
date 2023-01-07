@@ -51,6 +51,9 @@ public interface Actuator {
      * @return 运行之后的结果的字符串形式
      * <p>
      * String form of the result after running
+     * @throws IOException 异常抛出主要为当运行执行器的过程中，出现了无法提供给对方的异常信息时，异常将会被抛出。
+     *                     <p>
+     *                     Exception throwing is mainly used to throw exceptions when there is exception information that cannot be provided to the other party during the execution.
      */
     String runActuatorCommand(String command, Matcher matcher) throws IOException;
 }

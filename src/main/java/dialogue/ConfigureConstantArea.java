@@ -22,6 +22,14 @@ import java.util.logging.Logger;
  * @author zhao
  */
 public final class ConfigureConstantArea {
+
+    /**
+     * 本库的版本编码 x.xx 的形式代表 x.x.x版本，不同版本之间有不同的兼容效果
+     * <p>
+     * The version code x.xx of this library represents the x.x.x version. Different versions have different compatibility effects
+     */
+    public final static float VERISON = 1.0f;
+
     /**
      * 配置文件目录
      */
