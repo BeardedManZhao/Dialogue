@@ -63,10 +63,17 @@ public class ControlledPersistentSession extends ConsoleSession {
                     // 断开持久会话
                     break;
                 } else {
-                    // 如果不是要断开会话，就直接将主控的命令提供给终端任务
-                    exeOutputStream1.write((s.length() == 0 ? "\n" : s).getBytes(ConfigureConstantArea.CHARSET));
-                    exeOutputStream1.flush();
-                    ConfigureConstantArea.LOGGER.info(s);
+                    if (s.length() == 0) {
+                        // 如果不是要断开会话，就直接将主控的命令提供给终端任务
+                        exeOutputStream1.write('\n');
+                        exeOutputStream1.flush();
+                    } else {
+                        // 如果不是要断开会话，就直接将主控的命令提供给终端任务
+                        exeOutputStream1.write(s.getBytes(ConfigureConstantArea.CHARSET));
+                        exeOutputStream1.flush();
+                        ConfigureConstantArea.LOGGER.info(s);
+                    }
+
                 }
             }
             // 关闭exe的数据流

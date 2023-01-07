@@ -17,7 +17,7 @@ public class Test1 {
         MasterSession instance = MasterPersistentSession.getInstance();
         instance.start("127.0.0.1", "10001");
         if (instance.isRunning()) {
-            // 执行一个长会话命令 打开cmd终端
+            // 执行一个长会话命令 打开cmd终端 注意这个时候会被阻塞，开启持久会话的信息传递
             String s = instance.runCommand("cmd");
             System.out.println(s);
         }

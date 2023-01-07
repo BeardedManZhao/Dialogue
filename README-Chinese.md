@@ -20,14 +20,16 @@ Dialogue 是一个针对远程控制而制造出来的工具，在该框架内�
 
 ### 会话列表
 
-| 会话类型                                           | 会话编号                       | 会话功能                                             |
-|------------------------------------------------|----------------------------|--------------------------------------------------|
-| dialogue.core.master.MasterSession             | null                       | 主控会话的统一抽象，实现了主控会话生命周期的管理逻辑                       |
-| dialogue.core.master.TCPSession                | MASTER_TCP_SESSION         | 主控会话TCP会话，实现了主控远程执行命令的操作逻辑                       |
-| dialogue.core.master.MasterFileSession         | MASTER_FILE_SESSION        | 主控会话文件传输会话，拓展于主控TCP会话，有着文件上传和下载的实现，且包含TCP会话的所有功能 |
-| dialogue.core.controlled.ControlledSession     | null                       | 被控会话的统一抽象，实现了被控会话的生命周期的管理逻辑                      |
-| dialogue.core.controlled.ConsoleSession        | CONTROLLED_CONSOLE_SESSION | 被控会话-终端会话，实现了将终端命令执行于处理的操作逻辑                     |
-| dialogue.core.controlled.ControlledFileSession | CONTROLLED_FILE_SESSION    | 被控会话文件传输会话，拓展于被控终端会话，有着文件的接受与传输的实现，包含终端会话的所有功能   |
+| 会话类型                                                 | 会话编号                          | 会话功能                                             |
+|------------------------------------------------------|-------------------------------|--------------------------------------------------|
+| dialogue.core.master.MasterSession                   | null                          | 主控会话的统一抽象，实现了主控会话生命周期的管理逻辑                       |
+| dialogue.core.master.TCPSession                      | MASTER_TCP_SESSION            | 主控会话TCP会话，实现了主控远程执行命令的操作逻辑                       |
+| dialogue.core.master.MasterFileSession               | MASTER_FILE_SESSION           | 主控会话文件传输会话，拓展于主控TCP会话，有着文件上传和下载的实现，且包含TCP会话的所有功能 |
+| dialogue.core.master.MasterPersistentSession         | MASTER_PERSISTENT_SESSION     | 主控持久会话，能够进行具有交互需求的命令操作，需要注意的是该会话并不具备文件传输会话的功能    |
+| dialogue.core.controlled.ControlledSession           | null                          | 被控会话的统一抽象，实现了被控会话的生命周期的管理逻辑                      |
+| dialogue.core.controlled.ConsoleSession              | CONTROLLED_CONSOLE_SESSION    | 被控会话-终端会话，实现了将终端命令执行于处理的操作逻辑                     |
+| dialogue.core.controlled.ControlledFileSession       | CONTROLLED_FILE_SESSION       | 被控会话文件传输会话，拓展于被控终端会话，有着文件的接受与传输的实现，包含终端会话的所有功能   |
+| dialogue.core.controlled.ControlledPersistentSession | CONTROLLED_PERSISTENT_SESSION | 被控会话持久会话，能够实时的监听本地终端运行的所有数据并将数据实时传递给主控持久会话       |
 
 ## 什么是执行器
 
@@ -329,18 +331,100 @@ public class Test {
 }
 ```
 
+### 创建持久会话
+
+在运行终端命令和需求的时候，往往会涉及到一些持久同时需要交互的命令，这类命令的执行，需要一个适合的会话对象去进行结果与数据实时的传递，在库中有这样的一个会话，叫做持久会话
+持久会话具有交互性命令的执行优势，例如进行“cmd”命令等需要交互的操作，在这里想要创建一个持久会话，您可以参照下面的例子进行调用。
+
+#### 主控持久会话
+
+主控持久会话担当了实时接收与实时监听被控持久会话的日志传递职责，持久会话的运行周期大致如下所示
+
+- 获取到持久会话对象，此时将会使用 PERSISTENT_SESSION_CHANNEL_PORT 接收端口建立持久会话通信的服务
+- 调用start函数启动持久会话对象，此时将会立刻与被控设备建立联系，同时启动好接收会话端口的服务，等待被控准备。
+- 当被控准备就绪之后start函数结束，主控与被控已经连接，开始执行持久交互命令
+- 命令被发送之后，进入持久会话界面，此时将可以实时的看到被控的终端页面，也可以实时操作
+- 持久交互命令结束，持久会话也会结束，主控发送“::exit”命令结束持久会话，runCommand函数到此结束
+- 调用主控持久会话的stop函数，终止主控持久会话，此时被控与主控治安的来凝结将断开
+
+```java
+package dialogue.start;
+
+import dialogue.core.master.MasterPersistentSession;
+import dialogue.core.master.MasterSession;
+
+import java.io.IOException;
+
+/**
+ * 测试用例
+ *
+ * @author zhao
+ */
+public class Test1 {
+
+    public static void main(String[] args) {
+        // 获取到持久会话对象
+        MasterSession instance = MasterPersistentSession.getInstance();
+        instance.start("127.0.0.1", "10001");
+        if (instance.isRunning()) {
+            // 执行一个长会话命令 打开cmd终端 注意这个时候会被阻塞，开启持久会话的信息传递
+            String s = instance.runCommand("cmd");
+            System.out.println(s);
+        }
+        instance.stop();
+    }
+}
+```
+
+#### 被控持久会话
+
+被控持久会话担当了命令执行时的数据实时获取与发送，交互命令子进程的生命周期管理，主控命令的实时接收与子进程传递，能够实时的接收主控服务 有关被控持久会话的操作方式与生命周期如下所示。
+
+- 获取到被控持久会话对象，此时控制请求接收服务也会被创建
+- 调用start函数启动被控会话，会话此时将启动接收服务，同时进入阻塞状态，等待主控的连接
+- 连接成功之后会接收来自主控的持久命令，并将命令传递给子进程去处理，同时开始实时数据流传输服务
+- 持久交互结束之后，将会进入无状态模式，等待主控发送“::exit”命令关闭本次持久会话
+- 持久会话断开之后，会继续接收下一个持久命令，直到调用stop函数
+- stop函数的调用将会断开被控持久会话的请求接收服务，关闭请求接收端口，终止被控会话的生命周期。
+
+```java
+package dialogue.start;
+
+import dialogue.core.controlled.ControlledPersistentSession;
+import dialogue.core.controlled.ControlledSession;
+
+/**
+ * 测试用例
+ *
+ * @author zhao
+ */
+public class Test2 {
+    public static void main(String[] args) throws InterruptedException {
+        // 获取到被控持久会话对象
+        ControlledSession instance1 = ControlledPersistentSession.getInstance();
+        // 启动持久会话对象，与普通会话的操作方式相同，也是会在这里进入阻塞状态
+        new Thread(instance1::start).start();
+        // 等待运行
+        Thread.sleep(10240);
+        // 运行结束之后关闭持久会话对象
+        instance1.stop();
+    }
+}
+```
+
 ## 配置文件
 
 在当前目录下的 conf 目录中有一个 conf.properties 文件，该文件就是对应的配置文件，配置项将在下面指出，需要的各位可以参考。
 
-| 属性名称                                | 默认数值       | 支持版本 | 功能                                           |
-|-------------------------------------|------------|------|----------------------------------------------|
-| controlled.port                     | 10001      | v1.0 | 被控会话在启动的时候所打开的端口                             |
-| logger.level                        | INFO       | v1.0 | 系统日志数据的输出级别                                  |
-| tcp.buffer.max.size                 | 65536      | v1.0 | 数据传输过程中，一个数据包的最大长度                           |
-| tcp.file.port                       | 10002      | v1.0 | 文件传输通道端口                                     |
-| charset                             | utf-8      | v1.0 | 传输数据与解析数据使用的编码集                              |
-| progress.refresh.threshold          | 256        | v1.0 | 传输数据时进度条的刷新阈值，阈值越大，刷新速度越慢                    |
-| progress.compatibility.mode         | false      | v1.0 | 传输数据时进度条的兼容情况，设置为true，可以应对更多不兼容进度条的情况        |
-| file.progress.event                 | percentage | v1.0 | 传输数据时进度条的类型，默认是按照百分比显示传输进度                   |
-| progress.color.display              | true       | v1.0 | 进度条中的颜色显示，如果设置为true可以为进度条渲染颜色                |
+| 属性名称                            | 默认数值       | 支持版本 | 功能                                    |
+|---------------------------------|------------|------|---------------------------------------|
+| controlled.port                 | 10001      | v1.0 | 被控会话在启动的时候所打开的端口                      |
+| logger.level                    | INFO       | v1.0 | 系统日志数据的输出级别                           |
+| tcp.buffer.max.size             | 65536      | v1.0 | 数据传输过程中，一个数据包的最大长度                    |
+| tcp.file.port                   | 10002      | v1.0 | 文件传输通道端口                              |
+| charset                         | utf-8      | v1.0 | 传输数据与解析数据使用的编码集                       |
+| progress.refresh.threshold      | 256        | v1.0 | 传输数据时进度条的刷新阈值，阈值越大，刷新速度越慢             |
+| progress.compatibility.mode     | false      | v1.0 | 传输数据时进度条的兼容情况，设置为true，可以应对更多不兼容进度条的情况 |
+| file.progress.event             | percentage | v1.0 | 传输数据时进度条的类型，默认是按照百分比显示传输进度            |
+| progress.color.display          | true       | v1.0 | 进度条中的颜色显示，如果设置为true可以为进度条渲染颜色         |
+| persistent.session.channel.port | 10003      | v1.0 | 持久会话传输端口，是持久会话中数据交互的主要端口              |

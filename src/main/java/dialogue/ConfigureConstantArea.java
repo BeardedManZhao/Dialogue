@@ -2,6 +2,7 @@ package dialogue;
 
 import dialogue.utils.IOUtils;
 import dialogue.utils.ProgressEvent;
+import dialogue.utils.loggerFormatter.LogFormatter;
 import dialogue.utils.progressEvent.ProgressFileNumber;
 
 import java.io.File;
@@ -50,29 +51,30 @@ public final class ConfigureConstantArea {
      * 文件传输端口，默认是10002
      */
     public final static int FILE_PORT;
-
     /**
      * 文件传输时的事件处理器，如果这里设置为null，代表不需要任何事件操作
      */
     public final static ProgressFileNumber FILE_PROGRESS;
     public final static String FILE_PROGRESS_STRING;
-
     /**
      * 进度条刷新阈值，也称之为刷新批次，当数据包传递次数达到这个数值的时候，将会刷新一次进度条数据
      * <p>
      * The progress bar refresh threshold, also known as the refresh batch, will refresh the progress bar data once when the number of packet transfers reaches this value
      */
     public final static int PROGRESS_REFRESH_THRESHOLD;
-
     public final static boolean PROGRESS_COMPATIBILITY_MODE;
     public final static boolean PROGRESS_COLOR_DISPLAY;
-
     /**
      * 持久会话通道端口，在进行交互式的命令时，需要长时间的交互式命令，这个时候需要持久会话，该会话将会开启单独的一个端口进行服务。
      * <p>
      * The persistent session channel port requires a long-term interactive command when conducting interactive commands. In this case, a persistent session is required, and a separate port will be opened for service.
      */
     public final static int PERSISTENT_SESSION_CHANNEL_PORT;
+
+    static {
+        LOGGER.setUseParentHandlers(false);
+        LOGGER.addHandler(LogFormatter.CONSOLE_HANDLER_1);
+    }
 
     static {
         File ConfFile = new File(CONF_FILE_PATH);

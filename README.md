@@ -36,14 +36,16 @@ obtaining it, you need to start the session with the start function!.
 
 ### Session List
 
-| Session Type                                   | Session number             | Conversation function                            |
-|------------------------------------------------|----------------------------|--------------------------------------------------|
-| dialogue.core.master.MasterSession             | null                       | 主控会话的统一抽象，实现了主控会话生命周期的管理逻辑                       |
-| dialogue.core.master.TCPSession                | MASTER_TCP_SESSION         | 主控会话TCP会话，实现了主控远程执行命令的操作逻辑                       |
-| dialogue.core.master.MasterFileSession         | MASTER_FILE_SESSION        | 主控会话文件传输会话，拓展于主控TCP会话，有着文件上传和下载的实现，且包含TCP会话的所有功能 |
-| dialogue.core.controlled.ControlledSession     | null                       | 被控会话的统一抽象，实现了被控会话的生命周期的管理逻辑                      |
-| dialogue.core.controlled.ConsoleSession        | CONTROLLED_CONSOLE_SESSION | 被控会话-终端会话，实现了将终端命令执行于处理的操作逻辑                     |
-| dialogue.core.controlled.ControlledFileSession | CONTROLLED_FILE_SESSION    | 被控会话文件传输会话，拓展于被控终端会话，有着文件的接受与传输的实现，包含终端会话的所有功能   |
+| Session Type                                         | Session number                | Conversation function                            |
+|------------------------------------------------------|-------------------------------|--------------------------------------------------|
+| dialogue.core.master.MasterSession                   | null                          | 主控会话的统一抽象，实现了主控会话生命周期的管理逻辑                       |
+| dialogue.core.master.TCPSession                      | MASTER_TCP_SESSION            | 主控会话TCP会话，实现了主控远程执行命令的操作逻辑                       |
+| dialogue.core.master.MasterFileSession               | MASTER_FILE_SESSION           | 主控会话文件传输会话，拓展于主控TCP会话，有着文件上传和下载的实现，且包含TCP会话的所有功能 |
+| dialogue.core.master.MasterPersistentSession         | MASTER_PERSISTENT_SESSION     | 主控持久会话，能够进行具有交互需求的命令操作，需要注意的是该会话并不具备文件传输会话的功能    |
+| dialogue.core.controlled.ControlledSession           | null                          | 被控会话的统一抽象，实现了被控会话的生命周期的管理逻辑                      |
+| dialogue.core.controlled.ConsoleSession              | CONTROLLED_CONSOLE_SESSION    | 被控会话-终端会话，实现了将终端命令执行于处理的操作逻辑                     |
+| dialogue.core.controlled.ControlledFileSession       | CONTROLLED_FILE_SESSION       | 被控会话文件传输会话，拓展于被控终端会话，有着文件的接受与传输的实现，包含终端会话的所有功能   |
+| dialogue.core.controlled.ControlledPersistentSession | CONTROLLED_PERSISTENT_SESSION | 被控会话持久会话，能够实时的监听本地终端运行的所有数据并将数据实时传递给主控持久会话       |
 
 ## What is an actuator
 
@@ -375,20 +377,133 @@ public class Test {
 }
 ```
 
+### 创建持久会话
+
+When running terminal commands and requirements, it often involves some persistent and interactive commands. The
+execution of such commands requires a suitable session object to transmit results and data in real time. There is such a
+session in the library, called persistent session
+
+Persistent sessions have the advantage of interactive command execution, such as "cmd" command and other operations that
+require interaction. To create a persistent session here, you can refer to the following example to call.
+
+#### 主控持久会话
+
+The master persistent session is responsible for receiving and monitoring the log transmission of the controlled
+persistent session in real time. The running cycle of the persistent session is roughly as follows
+
+- Get the persistent session object. At this time, PERSISTENT will be used_ SESSION_ CHANNEL_ Service of establishing
+  persistent session communication through PORT receiving port
+
+- Call the start function to start the persistent session object. At this time, it will immediately establish contact
+  with the controlled device, and start the service to receive the session port, waiting for the controlled device to
+  prepare.
+
+- When the controlled system is ready, the start function ends, the master control and the controlled system are
+  connected, and the persistent interactive command is executed
+
+- After the command is sent, enter the persistent session interface. At this time, you can see the controlled terminal
+  page in real time, and you can also operate in real time
+
+- When the persistent interaction command ends, the persistent session will also end. The master controller sends a "::
+  exit" command to end the persistent session. The runCommand function is now over
+
+- Call the stop function of the master persistent session to terminate the master persistent session. At this time, the
+  controlled and master public security will be disconnected
+
+```java
+package dialogue.start;
+
+import dialogue.core.master.MasterPersistentSession;
+import dialogue.core.master.MasterSession;
+
+import java.io.IOException;
+
+/**
+ * 测试用例
+ *
+ * @author zhao
+ */
+public class Test1 {
+
+    public static void main(String[] args) {
+        // 获取到持久会话对象
+        MasterSession instance = MasterPersistentSession.getInstance();
+        instance.start("127.0.0.1", "10001");
+        if (instance.isRunning()) {
+            // 执行一个长会话命令 打开cmd终端 注意这个时候会被阻塞，开启持久会话的信息传递
+            String s = instance.runCommand("cmd");
+            System.out.println(s);
+        }
+        instance.stop();
+    }
+}
+```
+
+#### 被控持久会话
+
+The controlled persistent session serves as the real-time data acquisition and transmission during command execution,
+the life cycle management of interactive command subprocess, the real-time receiving and subprocess transmission of
+master commands, and the real-time receiving of master services
+
+The operation mode and life cycle of the controlled persistent session are shown below.
+
+- Get the controlled persistent session object, and the control request receiving service will also be created
+
+- Call the start function to start the controlled session. At this time, the session will start receiving services,
+  enter the blocking state, and wait for the connection of the master control
+
+- After the connection is successful, the system will receive the persistent command from the master controller,
+  transfer the command to the child process for processing, and start the real-time data stream transmission service
+
+- After the persistent interaction ends, it will enter stateless mode and wait for the master controller to send the "::
+  exit" command to close the persistent session
+
+- After the persistent session is disconnected, it will continue to receive the next persistent command until the stop
+  function is called
+
+- The call of the stop function will disconnect the request receiving service of the controlled persistent session,
+  close the request receiving port, and terminate the life cycle of the controlled session.
+
+```java
+package dialogue.start;
+
+import dialogue.core.controlled.ControlledPersistentSession;
+import dialogue.core.controlled.ControlledSession;
+
+/**
+ * 测试用例
+ *
+ * @author zhao
+ */
+public class Test2 {
+    public static void main(String[] args) throws InterruptedException {
+        // 获取到被控持久会话对象
+        ControlledSession instance1 = ControlledPersistentSession.getInstance();
+        // 启动持久会话对象，与普通会话的操作方式相同，也是会在这里进入阻塞状态
+        new Thread(instance1::start).start();
+        // 等待运行
+        Thread.sleep(10240);
+        // 运行结束之后关闭持久会话对象
+        instance1.stop();
+    }
+}
+```
+
 ## configuration file
 
 There is a conf.properties file in the conf directory under the current directory, which is the corresponding
 configuration file. The configuration items will be indicated below, and you can refer to the required ones.
 
-| Attribute Name              | Default value | Supported versions | function                                                                                                                 |
-|-----------------------------|---------------|--------------------|--------------------------------------------------------------------------------------------------------------------------|
-| controlled.port             | 10001         | v1.0               | The port opened when the controlled session starts                                                                       |
-| logger.level                | INFO          | v1.0               | Output level of system log data                                                                                          |
-| tcp.buffer.max.size         | 65536         | v1.0               | The maximum length of a data packet during data transmission                                                             |
-| tcp.file.port               | 10002         | v1.0               | File transfer channel port                                                                                               |
-| charset                     | utf-8         | v1.0               | Encoding set used for transmitting and parsing data                                                                      |
-| progress.refresh.threshold  | 256           | v1.0               | The refresh threshold of the progress bar when transmitting data. The larger the threshold, the slower the refresh speed |
-| progress.compatibility.mode | false         | v1.0               | The compatibility of progress bars during data transmission is set to true to cope with more incompatible progress bars  |
-| file.progress.event         | percentage    | v1.0               | The type of progress bar when transferring data. The default is to display the transfer progress by percentage           |
-| progress.color.display      | true          | v1.0               | Color display in progress bar. If it is set to true, it can render color for progress bar                                |
+| Attribute Name                  | Default value | Supported versions | function                                                                                                                 |
+|---------------------------------|---------------|--------------------|--------------------------------------------------------------------------------------------------------------------------|
+| controlled.port                 | 10001         | v1.0               | The port opened when the controlled session starts                                                                       |
+| logger.level                    | INFO          | v1.0               | Output level of system log data                                                                                          |
+| tcp.buffer.max.size             | 65536         | v1.0               | The maximum length of a data packet during data transmission                                                             |
+| tcp.file.port                   | 10002         | v1.0               | File transfer channel port                                                                                               |
+| charset                         | utf-8         | v1.0               | Encoding set used for transmitting and parsing data                                                                      |
+| progress.refresh.threshold      | 256           | v1.0               | The refresh threshold of the progress bar when transmitting data. The larger the threshold, the slower the refresh speed |
+| progress.compatibility.mode     | false         | v1.0               | The compatibility of progress bars during data transmission is set to true to cope with more incompatible progress bars  |
+| file.progress.event             | percentage    | v1.0               | The type of progress bar when transferring data. The default is to display the transfer progress by percentage           |
+| progress.color.display          | true          | v1.0               | Color display in progress bar. If it is set to true, it can render color for progress bar                                |
+| persistent.session.channel.port | 10003         | v1.0               | The persistent session transmission port is the main port for data interaction in the persistent session                 |
 

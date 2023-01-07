@@ -64,16 +64,16 @@ public class MasterPersistentSession extends TCPSession {
             final Socket accept = PERSISTENT_SESSION_SOCKET.accept();
             final DataInputStream masterDataInputStream = new DataInputStream(accept.getInputStream());
             final DataOutputStream masterDataOutputStream = new DataOutputStream(accept.getOutputStream());
-            final boolean[] status = {true};
-            System.out.println("+==========================Enter persistent session===============================+");
-            System.out.println("| * >>> Current session connection time   :" + new Date());
-            System.out.println("| * >>> Current session connection command:" + command);
+            boolean status = true;
+            ConfigureConstantArea.LOGGER.info("+==========================Enter persistent session===============================+");
+            ConfigureConstantArea.LOGGER.info("| * >>> Current session connection time   :" + new Date());
+            ConfigureConstantArea.LOGGER.info("| * >>> Current session connection command:" + command);
             if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
                 System.out.print(ConsoleColor.COLOR_YELLOW);
             }
             // 不断的监听输入流，向被控设备传递持久会话的命令，直到持久会话断开
             new Thread(() -> IOUtils.copy(masterDataInputStream, System.out, false, ExceptionProgress.NO_ACTION)).start();
-            while (status[0]) {
+            while (status) {
                 // 就等待输入命令，并传递给被控
                 String s = ConfigureConstantArea.SCANNER.nextLine();
                 masterDataOutputStream.writeUTF(s);
@@ -81,7 +81,7 @@ public class MasterPersistentSession extends TCPSession {
                 if (MASTER_CLOSE_STRING.equalsIgnoreCase(s)) {
                     // 代表退出持久会话，如果连接没有关闭，代表不能进行关闭操作
                     if (accept.isConnected()) {
-                        status[0] = false;
+                        status = false;
                         masterDataInputStream.close();
                         masterDataOutputStream.close();
                         accept.close();
@@ -94,8 +94,8 @@ public class MasterPersistentSession extends TCPSession {
             if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
                 System.out.print(ConsoleColor.COLOR_DEF);
             }
-            System.out.println("| * >>> This session is very smooth and will end soon.");
-            System.out.println("+==========================Ending persistent session==============================+");
+            ConfigureConstantArea.LOGGER.info("| * >>> This session is very smooth and will end soon.");
+            ConfigureConstantArea.LOGGER.info("+==========================Ending persistent session==============================+");
             return "The session ended successfully.";
         } catch (IOException e) {
             throw new SessionRunException(e);

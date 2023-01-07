@@ -121,7 +121,7 @@ public final class IOUtils {
     }
 
     /**
-     * 将两个数据流中的数据进行拷贝
+     * 将两个数据流中的数据进行拷贝，这个是带有异常处理能力的数据传输方式。
      *
      * @param inputStream       源数据流
      * @param outputStream      目标数据输出流
