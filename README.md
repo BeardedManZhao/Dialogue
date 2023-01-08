@@ -11,6 +11,8 @@ provided. At the same time, API calls can be made manually!
 You can obtain the dependencies of this tool library through maven coordinates, or you can use gradle to connect the
 coordinates.
 
+- MAVEN Dependencies
+
 ```xml
 
 <dependency>
@@ -18,6 +20,14 @@ coordinates.
     <artifactId>dialogue</artifactId>
     <version>1.0.0</version>
 </dependency>
+```
+
+- Gradle Dependencies
+
+```gradle
+dependencies {
+    implementation 'io.github.BeardedManZhao:dialogue:1.0.0'
+}
 ```
 
 ## What are master control and controlled

@@ -58,8 +58,8 @@ public class ControlledPersistentSession extends ConsoleSession {
             while (true) {
                 // 然后，等待主控的回复
                 String s = masterDataInputStream.readUTF().trim();
-                ConfigureConstantArea.LOGGER.log(Level.INFO, "endSession -> " + command);
                 if (!(thread.isAlive())) {
+                    ConfigureConstantArea.LOGGER.log(Level.INFO, "endSession -> " + command);
                     // 断开持久会话
                     break;
                 } else {

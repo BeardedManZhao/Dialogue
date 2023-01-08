@@ -8,6 +8,8 @@ Dialogue 是一个针对远程控制而制造出来的工具，在该框架内�
 
 您可以通过maven坐标获取到本工具库的依赖，当然也可以使用gradle连接该坐标。
 
+- MAVEN依赖
+
 ```xml
 
 <dependency>
@@ -15,6 +17,14 @@ Dialogue 是一个针对远程控制而制造出来的工具，在该框架内�
     <artifactId>dialogue</artifactId>
     <version>1.0.0</version>
 </dependency>
+```
+
+- Gradle依赖
+
+```gradle
+dependencies {
+    implementation 'io.github.BeardedManZhao:dialogue:1.0.0'
+}
 ```
 
 ## 什么是主控和被控
