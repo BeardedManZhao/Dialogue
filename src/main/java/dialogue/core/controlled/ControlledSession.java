@@ -26,7 +26,7 @@ import java.util.logging.Level;
  * <p>
  * It should be noted that a controlled session can only be used by a master session. When the master session is disconnected, the controlled session will prepare a new master connection again.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public abstract class ControlledSession implements Controlled, Host, Session {
 

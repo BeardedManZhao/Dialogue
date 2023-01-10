@@ -12,7 +12,7 @@ import dialogue.utils.progressEvent.ProgressPercentage;
  * @param <type1> 一号事件函数的形参类型
  * @param <type2> 二号事件函数的形参类型
  * @param <type3> 三号事件函数的形参类型
- * @author zhao
+ * @author 赵凌宇
  */
 public interface ProgressEvent<type1, type2, type3> {
 

@@ -9,14 +9,16 @@ import dialogue.core.master.MasterPersistentSession;
 import dialogue.core.master.MasterSession;
 
 import java.net.InetAddress;
+import java.util.Scanner;
 import java.util.logging.Level;
 
 /**
  * 启动类
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public final class MAIN {
+    private final static Scanner SCANNER = new Scanner(System.in, ConfigureConstantArea.CHARSET);
     private static boolean status = true;
 
     public static void main(String[] args) throws InterruptedException {
@@ -25,15 +27,15 @@ public final class MAIN {
                 ConfigureConstantArea.LOGGER.log(Level.INFO, "Master主控会话配置.......");
                 Thread.sleep(1024);
                 System.out.print("* 操控设备的IP地址 >>> ");
-                String ip = ConfigureConstantArea.SCANNER.nextLine();
+                String ip = SCANNER.nextLine();
                 System.out.print("* 操控设备的端口号 >>> ");
-                String port = ConfigureConstantArea.SCANNER.nextLine();
+                String port = SCANNER.nextLine();
                 Thread.sleep(1024);
                 MasterSession instance = "false".equalsIgnoreCase(args[0]) ? MasterFileSession.getInstance() : MasterPersistentSession.getInstance();
                 instance.start(ip, port);
                 while (status) {
                     System.out.print("* >>> ");
-                    String command = ConfigureConstantArea.SCANNER.nextLine();
+                    String command = SCANNER.nextLine();
                     if ("exit".equalsIgnoreCase(command)) {
                         status = false;
                         continue;
@@ -62,7 +64,7 @@ public final class MAIN {
                 ControlledSession instance = "false".equalsIgnoreCase(args[0]) ? ControlledFileSession.getInstance() : ControlledPersistentSession.getInstance();
                 new Thread(instance::start).start();
                 while (status) {
-                    String s = ConfigureConstantArea.SCANNER.nextLine();
+                    String s = SCANNER.nextLine();
                     if ("exit".equalsIgnoreCase(s)) {
                         status = false;
                         instance.stop();

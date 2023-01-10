@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
  * <p>
  * Controlled file session object, which supports file data query (look) and get (get). If the command cannot be processed, the data will be passed to the parent class to run
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ControlledFileSession extends ConsoleSession {
 
@@ -27,6 +27,7 @@ public class ControlledFileSession extends ConsoleSession {
     protected ControlledPutFileActuator controlledPutFileActuator;
     protected ControlledGetsDirActuator controlledGetsDirActuator;
     protected ControlledPutsDirActuator controlledPutsDirActuator;
+    protected ControlledRunningProgramActuator controlledRunningProgramActuator;
 
     private final ProgressEvent<Socket, OutputStream, InputStream> INIT_ProgressEvent = new ProgressEvent<Socket, OutputStream, InputStream>() {
         private Socket tempSocket;
@@ -50,11 +51,13 @@ public class ControlledFileSession extends ConsoleSession {
             controlledPutFileActuator = new ControlledPutFileActuator(tempSocket, type, tempOut);
             controlledGetsDirActuator = new ControlledGetsDirActuator(tempSocket, type, tempOut);
             controlledPutsDirActuator = new ControlledPutsDirActuator(tempSocket, type, tempOut);
+            controlledRunningProgramActuator = new ControlledRunningProgramActuator(tempSocket, type, tempOut);
             ActuatorManager.registerControlledActuator(controlledGetActuator);
             ActuatorManager.registerControlledActuator(controlledLookFileActuator);
             ActuatorManager.registerControlledActuator(controlledPutFileActuator);
             ActuatorManager.registerControlledActuator(controlledGetsDirActuator);
             ActuatorManager.registerControlledActuator(controlledPutsDirActuator);
+            ActuatorManager.registerControlledActuator(controlledRunningProgramActuator);
         }
     };
 
@@ -95,6 +98,7 @@ public class ControlledFileSession extends ConsoleSession {
         ActuatorManager.unControlledRegister(this.controlledPutFileActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledGetsDirActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledPutsDirActuator.getName());
+        ActuatorManager.unControlledRegister(this.controlledRunningProgramActuator.getName());
     }
 
     /**

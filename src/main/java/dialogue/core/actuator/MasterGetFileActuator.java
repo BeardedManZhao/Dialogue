@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
  * <p>
  * The get command execution class corresponds to the controlled get execution class and is used by the master control to obtain data from the controlled device.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class MasterGetFileActuator implements Actuator {
     private final static String ERROR = "Incorrect syntax! => get [Remote File Path] [local File Path]";

@@ -9,7 +9,7 @@ import java.util.HashMap;
  * <p>
  * Executor management class, which refers to the manager of all executors, including functions such as registration of executor objects.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public final class ActuatorManager implements Session {
 

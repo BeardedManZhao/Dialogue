@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
  * <p>
  * It controls the file session object, supports the storage of the returned data of the other party in the file, and can realize the query and acquisition of the controlled file.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class MasterFileSession extends TCPSession {
 
@@ -39,12 +39,13 @@ public class MasterFileSession extends TCPSession {
     protected MasterPutFileActuator masterPutFileActuator;
     protected MasterGetsDirActuator masterGetsDirActuator;
     protected MasterPutsDirActuator masterPutsDirActuator;
+    protected MasterRunningProgramActuator masterRunningProgramActuator;
 
     protected MasterFileSession() {
     }
 
-    public static MasterSession getInstance() {
-        return getInstance(MASTER_FILE_SESSION);
+    public static MasterFileSession getInstance() {
+        return (MasterFileSession) getInstance(MASTER_FILE_SESSION);
     }
 
     /**
@@ -60,14 +61,16 @@ public class MasterFileSession extends TCPSession {
         // 注册需要的组件
         this.masterLookFileActuator = new MasterLookFileActuator(fileSocket, outputStream);
         this.masterGetFileActuator = new MasterGetFileActuator(fileSocket, outputStream);
-        this.masterPutFileActuator = new MasterPutFileActuator(fileSocket, outputStream);
+        this.masterPutFileActuator = new MasterPutFileActuator(fileSocket, outputStream, inputStream);
         this.masterGetsDirActuator = new MasterGetsDirActuator(fileSocket, outputStream);
         this.masterPutsDirActuator = new MasterPutsDirActuator(fileSocket, outputStream);
+        this.masterRunningProgramActuator = new MasterRunningProgramActuator(fileSocket, outputStream, inputStream);
         ActuatorManager.registerMasterActuator(masterLookFileActuator);
         ActuatorManager.registerMasterActuator(masterGetFileActuator);
         ActuatorManager.registerMasterActuator(masterPutFileActuator);
         ActuatorManager.registerMasterActuator(masterGetsDirActuator);
         ActuatorManager.registerMasterActuator(masterPutsDirActuator);
+        ActuatorManager.registerMasterActuator(masterRunningProgramActuator);
     }
 
     /**
@@ -86,6 +89,7 @@ public class MasterFileSession extends TCPSession {
         ActuatorManager.unMasterRegister(this.masterPutFileActuator.getName());
         ActuatorManager.unMasterRegister(this.masterGetsDirActuator.getName());
         ActuatorManager.unMasterRegister(this.masterPutsDirActuator.getName());
+        ActuatorManager.unMasterRegister(this.masterRunningProgramActuator.getName());
     }
 
     /**

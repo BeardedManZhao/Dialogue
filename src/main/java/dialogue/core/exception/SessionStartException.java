@@ -5,7 +5,7 @@ package dialogue.core.exception;
  * <p>
  * An unexpected error occurred while the session was starting.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class SessionStartException extends RuntimeException {
     /**

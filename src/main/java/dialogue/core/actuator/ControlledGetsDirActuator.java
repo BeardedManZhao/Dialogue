@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
  * <p>
  * Controlled directory acquisition actuator, a class that transmits all files in the directory remotely
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ControlledGetsDirActuator extends ControlledGetFileActuator {
 

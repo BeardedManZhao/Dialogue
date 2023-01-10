@@ -21,7 +21,7 @@ import java.util.logging.Level;
  * <p>
  * The main control session object includes the startup and shutdown of the object and the operation function of the controlled device.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public abstract class MasterSession implements Master, Host, Session {
     private final static String INIT_INFO = "Successfully initialized the Master";

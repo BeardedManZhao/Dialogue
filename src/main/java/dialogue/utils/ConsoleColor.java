@@ -5,7 +5,7 @@ package dialogue.utils;
  * <p>
  * The color font constant area stores data strings related to all colors, which can have different effects in some terminals.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public final class ConsoleColor {
 

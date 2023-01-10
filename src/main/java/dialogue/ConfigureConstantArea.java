@@ -10,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +18,7 @@ import java.util.logging.Logger;
  * <p>
  * The configuration constant area stores the configuration information about the tool.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public final class ConfigureConstantArea {
 
@@ -54,7 +53,6 @@ public final class ConfigureConstantArea {
      * 通信文字编码
      */
     public final static String CHARSET;
-    public final static Scanner SCANNER;
     /**
      * 文件传输端口，默认是10002
      */
@@ -79,6 +77,13 @@ public final class ConfigureConstantArea {
      */
     public final static int PERSISTENT_SESSION_CHANNEL_PORT;
 
+    /**
+     * 文件在远程主机中运行的目录
+     * <p>
+     * Directory where the file runs on the remote host
+     */
+    public final static String REMOTE_RUNNING_DIRECTORY = "./exe/";
+
     static {
         LOGGER.setUseParentHandlers(false);
         LOGGER.addHandler(LogFormatter.CONSOLE_HANDLER_1);
@@ -86,6 +91,7 @@ public final class ConfigureConstantArea {
 
     static {
         File ConfFile = new File(CONF_FILE_PATH);
+        // 准备初始化配置
         FileReader fileReader = null;
         Properties properties = new Properties();
         try {
@@ -103,7 +109,6 @@ public final class ConfigureConstantArea {
             TCP_BUFFER_MAX_SIZE = Integer.parseInt(properties.getProperty("tcp.buffer.max.size", "65535"));
             FILE_PORT = Integer.parseInt(properties.getProperty("tcp.file.port", "10002"));
             CHARSET = properties.getProperty("charset", "utf-8");
-            SCANNER = new Scanner(System.in, ConfigureConstantArea.CHARSET);
             PROGRESS_REFRESH_THRESHOLD = Integer.parseInt(properties.getProperty("progress.refresh.threshold", "256"));
             PROGRESS_COMPATIBILITY_MODE = Boolean.parseBoolean(properties.getProperty("progress.compatibility.mode", "false"));
             FILE_PROGRESS_STRING = properties.getProperty("file.progress.event", "percentage");
@@ -122,8 +127,37 @@ public final class ConfigureConstantArea {
             throw new RuntimeException("Unknown File_Progress: " + LOGGER_LEVEL);
         }
         loadLogger();
+
+        clearExe();
     }
 
+    /**
+     * 检查清理或创建远程运行目录，使得远程运行功能能够完美的运行。
+     */
+    private static void clearExe() {
+        // 准备目录
+        File file = new File(REMOTE_RUNNING_DIRECTORY);
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                LOGGER.warning("Initialization failed because the directory required by the project is occupied. Please prepare an empty directory named [./exe/] to store in the project.");
+            }
+        } else {
+            File[] files = file.listFiles();
+            if (files == null) {
+                LOGGER.warning(REMOTE_RUNNING_DIRECTORY + " Insufficient permissions or not a directory.");
+            } else {
+                for (File listFile : files) {
+                    if (listFile.delete()) {
+                        LOGGER.info("clear " + listFile.getPath());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 根据日志级别参数配置不同的级别配置
+     */
     private static void loadLogger() {
         if ("info".equalsIgnoreCase(LOGGER_LEVEL)) {
             LOGGER.setLevel(Level.INFO);

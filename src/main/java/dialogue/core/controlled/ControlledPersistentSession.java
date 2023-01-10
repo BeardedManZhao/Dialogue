@@ -17,7 +17,7 @@ import java.util.logging.Level;
  * <p>
  * The controlled long session terminal, in this session object, can receive the long session command from the master in real time, and can transmit the running log to the other party in real time.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ControlledPersistentSession extends ConsoleSession {
 

@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 /**
  * 被控端的文件接受put命令执行器，在该执行器中，有着执行命令接受数据的功能。
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ControlledPutFileActuator implements Actuator {
 

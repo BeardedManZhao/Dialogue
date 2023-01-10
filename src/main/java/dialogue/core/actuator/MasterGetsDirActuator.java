@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
  * <p>
  * The class that controls the directory acquisition executor and transfers all files in the directory remotely
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class MasterGetsDirActuator extends MasterGetFileActuator {
 

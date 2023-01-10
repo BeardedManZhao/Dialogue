@@ -5,7 +5,7 @@ package dialogue.core.exception;
  * <p>
  * Session extraction exception, which is thrown when an error occurs in the extraction of session objects.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class SessionExtractionException extends RuntimeException {
     /**

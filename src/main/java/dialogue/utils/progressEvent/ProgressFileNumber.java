@@ -11,7 +11,7 @@ import static dialogue.utils.ConsoleColor.*;
  * <p>
  * The file transfer event object contains the function of displaying the read size of a file. It can display the read data amount when the file is read.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integer> {
     protected static final StringBuilder stringBuilder = new StringBuilder(0x40);

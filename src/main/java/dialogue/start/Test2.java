@@ -6,7 +6,7 @@ import dialogue.core.controlled.ControlledSession;
 /**
  * 测试用例
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class Test2 {
     public static void main(String[] args) throws InterruptedException {

@@ -10,15 +10,15 @@ import java.io.IOException;
  * <p>
  * TCP command execution implementation class of the master control device, which can transmit commands to remote devices for execution through TCP.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class TCPSession extends MasterSession {
 
     TCPSession() {
     }
 
-    public static MasterSession getInstance() {
-        return getInstance(MASTER_TCP_SESSION);
+    public static TCPSession getInstance() {
+        return (TCPSession) getInstance(MASTER_TCP_SESSION);
     }
 
     /**

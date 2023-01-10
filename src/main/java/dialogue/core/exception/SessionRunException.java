@@ -5,7 +5,7 @@ package dialogue.core.exception;
  * <p>
  * Session Run Exception, Exception Information Object thrown by an error while the session executes logic
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class SessionRunException extends RuntimeException {
 

@@ -10,7 +10,7 @@ import static dialogue.utils.ConsoleColor.COLOR_YELLOW;
  * <p>
  * The file progress bar displays the event listener, which is a display event implementation class for file read/write progress.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ProgressPercentage extends ProgressFileNumber {
 

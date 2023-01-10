@@ -15,17 +15,19 @@ import java.util.regex.Matcher;
  * <p>
  * The master file sending actuator supports sending file data to the original host.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class MasterPutFileActuator implements Actuator {
+    protected final static String SEND_OK = " File sending completed";
     private final static String ERROR = "Incorrect syntax! => put [local File Path] [Remote New Path]";
-
     protected final ServerSocket fileSocket;
     protected final OutputStream outputStream;
+    protected final InputStream inputStream;
 
-    public MasterPutFileActuator(ServerSocket fileSocket, OutputStream outputStream) {
+    public MasterPutFileActuator(ServerSocket fileSocket, OutputStream outputStream, InputStream inputStream) {
         this.fileSocket = fileSocket;
         this.outputStream = outputStream;
+        this.inputStream = inputStream;
     }
 
     /**

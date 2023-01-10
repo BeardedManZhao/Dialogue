@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 /**
  * Look命令执行器，与主控Look相互对应，用于将数据传递给主控的查看文件操作。
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ControlledLookFileActuator implements Actuator {
 

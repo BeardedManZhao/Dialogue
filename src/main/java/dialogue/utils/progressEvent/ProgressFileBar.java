@@ -7,7 +7,7 @@ import dialogue.ConfigureConstantArea;
  * <p>
  * The file progress bar displays the event listener, which is a display event implementation class for file read/write progress.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ProgressFileBar extends ProgressFileNumber {
     private final static char s1 = '●';

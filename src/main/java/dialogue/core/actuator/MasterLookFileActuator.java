@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
  * <p>
  * The main look actuator is used to send instructions and receive controlled data.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class MasterLookFileActuator implements Actuator {
 

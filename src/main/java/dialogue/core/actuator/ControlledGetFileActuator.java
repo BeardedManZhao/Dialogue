@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
  * <p>
  * The get command execution class corresponds to the get execution class of the master control, which is used for the master control to obtain data from the controlled device.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ControlledGetFileActuator implements Actuator {
 

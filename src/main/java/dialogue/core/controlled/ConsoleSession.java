@@ -14,7 +14,7 @@ import java.util.logging.Level;
  * <p>
  * 该命令行只能执行查看类的命令，例如 cat type 或 python xxx等，不能执行 cd等命令以及不正确的命令
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class ConsoleSession extends ControlledSession {
 

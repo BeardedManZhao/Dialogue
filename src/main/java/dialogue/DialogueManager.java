@@ -7,7 +7,7 @@ import dialogue.core.exception.SessionExtractionException;
  * <p>
  * The host manager class stores the corresponding host objects for each IP host object.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class DialogueManager implements Session {
     /**

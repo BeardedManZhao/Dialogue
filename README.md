@@ -85,18 +85,20 @@ However, the use of these functions has certain risks. Please be careful!
 
 ### Actuator list
 
-| Actuator type                                     | Actuator command | Session to which the actuator belongs | function                                                   |
-|---------------------------------------------------|------------------|---------------------------------------|------------------------------------------------------------|
-| dialogue.core.actuator.MasterGetFileActuator      | get              | MASTER_FILE_SESSION                   | Receive documents from controlled equipment                |
-| dialogue.core.actuator.ControlledGetFileActuator  | get              | CONTROLLED_FILE_SESSION               | Sending files to the master control device                 |
-| dialogue.core.actuator.MasterGetsDirActuator      | gets             | MASTER_FILE_SESSION                   | Receive a batch of documents from the controlled equipment |
-| dialogue.core.actuator.ControlledGetsDirActuator  | gets             | CONTROLLED_FILE_SESSION               | Send a batch of files to the master control device         |
-| dialogue.core.actuator.MasterLookFileActuator     | look             | MASTER_FILE_SESSION                   | View the contents of a file in the controlled device       |
-| dialogue.core.actuator.ControlledLookFileActuator | look             | CONTROLLED_FILE_SESSION               | Transfer file data to the master device                    |
-| dialogue.core.actuator.MasterPutFileActuator      | put              | MASTER_FILE_SESSION                   | Sending files to controlled equipment                      |
-| dialogue.core.actuator.ControlledPutFileActuator  | put              | CONTROLLED_FILE_SESSION               | Receive files from the master control device               |
-| dialogue.core.actuator.MasterPutsDirActuator      | puts             | MASTER_FILE_SESSION                   | Send a batch of documents to the controlled equipment      |
-| dialogue.core.actuator.ControlledPutsDirActuator  | puts             | CONTROLLED_FILE_SESSION               | Receive a batch of files from the master control device    |
+| Actuator type                                           | Actuator command | 支持版本   | Session to which the actuator belongs | function                                                                |
+|---------------------------------------------------------|------------------|--------|---------------------------------------|-------------------------------------------------------------------------|
+| dialogue.core.actuator.MasterGetFileActuator            | get              | v1.0.0 | MASTER_FILE_SESSION                   | Receive documents from controlled equipment                             |
+| dialogue.core.actuator.ControlledGetFileActuator        | get              | v1.0.0 | CONTROLLED_FILE_SESSION               | Sending files to the master control device                              |
+| dialogue.core.actuator.MasterGetsDirActuator            | gets             | v1.0.0 | MASTER_FILE_SESSION                   | Receive a batch of documents from the controlled equipment              |
+| dialogue.core.actuator.ControlledGetsDirActuator        | gets             | v1.0.0 | CONTROLLED_FILE_SESSION               | Send a batch of files to the master control device                      |
+| dialogue.core.actuator.MasterLookFileActuator           | look             | v1.0.0 | MASTER_FILE_SESSION                   | View the contents of a file in the controlled device                    |
+| dialogue.core.actuator.ControlledLookFileActuator       | look             | v1.0.0 | CONTROLLED_FILE_SESSION               | Transfer file data to the master device                                 |
+| dialogue.core.actuator.MasterPutFileActuator            | put              | v1.0.0 | MASTER_FILE_SESSION                   | Sending files to controlled equipment                                   |
+| dialogue.core.actuator.ControlledPutFileActuator        | put              | v1.0.0 | CONTROLLED_FILE_SESSION               | Receive files from the master control device                            |
+| dialogue.core.actuator.MasterPutsDirActuator            | puts             | v1.0.0 | MASTER_FILE_SESSION                   | Send a batch of documents to the controlled equipment                   |
+| dialogue.core.actuator.ControlledPutsDirActuator        | puts             | v1.0.0 | CONTROLLED_FILE_SESSION               | Receive a batch of files from the master control device                 |
+| dialogue.core.actuator.MasterRunningProgramActuator     | running          | v1.0.1 | MASTER_FILE_SESSION                   | Pass the program file to the remote host to run and receive the results |
+| dialogue.core.actuator.ControlledRunningProgramActuator | running          | v1.0.1 | CONTROLLED_FILE_SESSION               | Receive the program file and run it, then return the result             |
 
 # Example of operation
 
@@ -120,8 +122,10 @@ package dialogue.start;
 
 import dialogue.ConfigureConstantArea;
 import dialogue.core.controlled.ControlledFileSession;
+import dialogue.core.controlled.ControlledPersistentSession;
 import dialogue.core.controlled.ControlledSession;
 import dialogue.core.master.MasterFileSession;
+import dialogue.core.master.MasterPersistentSession;
 import dialogue.core.master.MasterSession;
 
 import java.net.InetAddress;
@@ -131,73 +135,79 @@ import java.util.logging.Level;
 /**
  * 启动类
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public final class MAIN {
-    private final static Scanner SCANNER = new Scanner(System.in, ConfigureConstantArea.CHARSET);
     private static boolean status = true;
+    private final static Scanner SCANNER = new Scanner(System.in, ConfigureConstantArea.CHARSET);
 
     public static void main(String[] args) throws InterruptedException {
-        if (args.length > 0 && "master".equalsIgnoreCase(args[0])) {
-            ConfigureConstantArea.LOGGER.log(Level.INFO, "Master主控会话配置.......");
-            Thread.sleep(1024);
-            System.out.print("* 操控设备的IP地址 >>> ");
-            String ip = SCANNER.nextLine();
-            System.out.print("* 操控设备的端口号 >>> ");
-            String port = SCANNER.nextLine();
-            Thread.sleep(1024);
-            MasterSession instance = MasterFileSession.getInstance();
-            instance.start(ip, port);
-            while (status) {
-                System.out.print("* >>> ");
-                String command = SCANNER.nextLine();
-                if ("exit".equalsIgnoreCase(command)) {
-                    status = false;
-                    continue;
-                } else if ("state".equalsIgnoreCase(command)) {
-                    InetAddress inetAddress = instance.ConnectedControlled();
-                    if (inetAddress != null) {
-                        System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
-                        System.out.println("state >>> 当前连接的被控主机名称\t:\t" + inetAddress.getHostName());
-                        System.out.println("state >>> 当前连接的被控主机标识\t:\t" + inetAddress.getCanonicalHostName());
-                        System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
-                        System.out.println("state >>> 当前连接的被控主机状态\t:\tActive");
-                    } else {
-                        System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
-                        System.out.println("state >>> 当前连接的被控主机状态\t:\tNo connection");
+        if (args.length > 0) {
+            if (args.length > 1 && "master".equalsIgnoreCase(args[1])) {
+                ConfigureConstantArea.LOGGER.log(Level.INFO, "Master主控会话配置.......");
+                Thread.sleep(1024);
+                System.out.print("* 操控设备的IP地址 >>> ");
+                String ip = SCANNER.nextLine();
+                System.out.print("* 操控设备的端口号 >>> ");
+                String port = SCANNER.nextLine();
+                Thread.sleep(1024);
+                MasterSession instance = "false".equalsIgnoreCase(args[0]) ? MasterFileSession.getInstance() : MasterPersistentSession.getInstance();
+                instance.start(ip, port);
+                while (status) {
+                    System.out.print("* >>> ");
+                    String command = SCANNER.nextLine();
+                    if ("exit".equalsIgnoreCase(command)) {
+                        status = false;
+                        continue;
+                    } else if ("state".equalsIgnoreCase(command)) {
+                        InetAddress inetAddress = instance.ConnectedControlled();
+                        if (inetAddress != null) {
+                            System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
+                            System.out.println("state >>> 当前连接的被控主机名称\t:\t" + inetAddress.getHostName());
+                            System.out.println("state >>> 当前连接的被控主机标识\t:\t" + inetAddress.getCanonicalHostName());
+                            System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
+                            System.out.println("state >>> 当前连接的被控主机状态\t:\tActive");
+                        } else {
+                            System.out.println("state >>> 主控会话运行状态布尔值\t:\t" + instance.isRunning());
+                            System.out.println("state >>> 当前连接的被控主机状态\t:\tNo connection");
+                        }
+                        continue;
                     }
-                    continue;
+                    System.out.println(instance.runCommand(command));
+                    Thread.sleep(512);
                 }
-                System.out.println(instance.runCommand(command));
-                Thread.sleep(512);
+                instance.stop();
+            } else {
+                ConfigureConstantArea.LOGGER.log(Level.INFO, "默认被控会话系统启动.......");
+                ConfigureConstantArea.LOGGER.log(Level.INFO, "根据配置文件打开被控端口：" + ConfigureConstantArea.CONTROLLED_PORT);
+                Thread.sleep(1024);
+                ControlledSession instance = "false".equalsIgnoreCase(args[0]) ? ControlledFileSession.getInstance() : ControlledPersistentSession.getInstance();
+                new Thread(instance::start).start();
+                while (status) {
+                    String s = SCANNER.nextLine();
+                    if ("exit".equalsIgnoreCase(s)) {
+                        status = false;
+                        instance.stop();
+                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                    } else if ("state".equalsIgnoreCase(s)) {
+                        InetAddress inetAddress = instance.ConnectedMaster();
+                        if (inetAddress != null) {
+                            System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                            System.out.println("state >>> 当前连接的主控主机名称\t:\t" + inetAddress.getHostName());
+                            System.out.println("state >>> 当前连接的主控主机标识\t:\t" + inetAddress.getCanonicalHostName());
+                            System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
+                            System.out.println("state >>> 当前连接的主控主机状态\t:\tActive");
+                        } else {
+                            System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                            System.out.println("state >>> 当前连接的主控主机状态\t:\tNo connection");
+                        }
+                    }
+                }
             }
-            instance.stop();
         } else {
-            ConfigureConstantArea.LOGGER.log(Level.INFO, "默认被控会话系统启动.......");
-            ConfigureConstantArea.LOGGER.log(Level.INFO, "根据配置文件打开被控端口：" + ConfigureConstantArea.CONTROLLED_PORT);
-            Thread.sleep(1024);
-            ControlledSession instance = ControlledFileSession.getInstance();
-            new Thread(instance::start).start();
-            while (status) {
-                String s = SCANNER.nextLine();
-                if ("exit".equalsIgnoreCase(s)) {
-                    status = false;
-                    instance.stop();
-                    System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
-                } else if ("state".equalsIgnoreCase(s)) {
-                    InetAddress inetAddress = instance.ConnectedMaster();
-                    if (inetAddress != null) {
-                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
-                        System.out.println("state >>> 当前连接的主控主机名称\t:\t" + inetAddress.getHostName());
-                        System.out.println("state >>> 当前连接的主控主机标识\t:\t" + inetAddress.getCanonicalHostName());
-                        System.out.println("state >>> 当前会话已运行时长(MS)\t:\t" + instance.getRunTimeMS());
-                        System.out.println("state >>> 当前连接的主控主机状态\t:\tActive");
-                    } else {
-                        System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
-                        System.out.println("state >>> 当前连接的主控主机状态\t:\tNo connection");
-                    }
-                }
-            }
+            System.out.println("您需要传递参数 【持久会话】 【会话身份】\n" +
+                    "\t【持久会话】 ：true或false，代表您是否要使用持久会话，如果不需要进行持久会话的交互，您可以传递false。\n" +
+                    "\t【会话身份】 ：master或其它，代表您是否要使用主控会话，如果您不想要使用主控会话，这里不需要传递参数。");
         }
     }
 }
@@ -223,7 +233,7 @@ import dialogue.core.master.MasterSession;
 /**
  * 测试用例
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class Test {
 
@@ -277,7 +287,7 @@ import dialogue.core.controlled.ControlledSession;
 /**
  * 测试用例
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class Test {
 
@@ -321,7 +331,7 @@ import java.net.InetAddress;
 /**
  * 测试用例
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class Test {
 
@@ -376,7 +386,7 @@ import dialogue.core.controlled.ControlledSession;
 /**
  * 测试用例
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class Test {
 
@@ -445,13 +455,19 @@ import java.io.IOException;
 /**
  * 测试用例
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class Test1 {
 
     public static void main(String[] args) {
         // 获取到持久会话对象
         MasterSession instance = MasterPersistentSession.getInstance();
+        // 设置持久会话对象在运行长命令时，数据实时传递的数据流，这里我们设置终端数据流
+        // 代表只将持久命令运行时数据与传递数据的位置设置在终端中 TODO 是1.0.1版本中的新功能
+        instance.setInputStream(System.in);
+        instance.setOutputStream(System.out);
+        // 开始启动持久会话对象，启动之后就可以像其它会话一样输入命令了
+        // 在执行命令的时候，往返的数据会实时的传递给您传入的数据IO流
         instance.start("127.0.0.1", "10001");
         if (instance.isRunning()) {
             // 执行一个长会话命令 打开cmd终端 注意这个时候会被阻塞，开启持久会话的信息传递
@@ -497,7 +513,7 @@ import dialogue.core.controlled.ControlledSession;
 /**
  * 测试用例
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class Test2 {
     public static void main(String[] args) throws InterruptedException {

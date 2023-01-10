@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
  * <p>
  * Send all files in the directory designated by the master controller to the controlled device.
  *
- * @author zhao
+ * @author 赵凌宇
  */
 public class MasterPutsDirActuator implements Actuator {
 
