@@ -17,7 +17,7 @@ public final class LogFormatter extends Formatter {
     public final static char TAB = '\t';
     public final static char line = '\n';
     public final static ConsoleHandler CONSOLE_HANDLER_1 = new ConsoleHandler();
-    private final static Date date = new Date();
+    private final static Date DATE = new Date();
 
     static {
         CONSOLE_HANDLER_1.setFormatter(new LogFormatter());
@@ -25,9 +25,9 @@ public final class LogFormatter extends Formatter {
 
     @Override
     public String format(LogRecord record) {
-        date.setTime(record.getMillis());
+        DATE.setTime(record.getMillis());
         return LB + record.getLoggerName() + RB +
-                LB + date + RB +
+                LB + DATE + RB +
                 LB + record.getLevel() + RB +
                 TAB + record.getMessage() + line;
     }

@@ -79,4 +79,14 @@ public class ConsoleSession extends ControlledSession {
     public ControlledSession cloneSession(int port) {
         return new ConsoleSession(port);
     }
+
+    /**
+     * @return 当前会话对象对应的会话编号，从1.0.1版本开始，该函数支持调用。
+     * <p>
+     * The session number does not exist in the manager, so it cannot be logged off. The session number corresponding to the current session object. Starting from version 1.0.1, this function supports calling.
+     */
+    @Override
+    public short getSessionNum() {
+        return CONTROLLED_CONSOLE_SESSION;
+    }
 }

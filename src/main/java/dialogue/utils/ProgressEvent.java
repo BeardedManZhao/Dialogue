@@ -1,6 +1,7 @@
 package dialogue.utils;
 
 import dialogue.utils.progressEvent.ProgressFileBar;
+import dialogue.utils.progressEvent.ProgressFileLog;
 import dialogue.utils.progressEvent.ProgressFileNumber;
 import dialogue.utils.progressEvent.ProgressPercentage;
 
@@ -34,6 +35,12 @@ public interface ProgressEvent<type1, type2, type3> {
      * 第三个函数是进度条的结束操作函数
      */
     ProgressFileNumber PROGRESS_FILE_PERCENTAGE = new ProgressPercentage();
+    /**
+     * 日志进度监听实现类，在其中第一个函数是进度条的起始操作函数
+     * 第二个函数是进度条的过程操作函数
+     * 第三个函数是进度条的结束操作函数
+     */
+    ProgressFileNumber PROGRESS_FILE_LOG = new ProgressFileLog();
 
     /**
      * 事件监听逻辑实现一号函数，在类中有很多需要实现的函数，这些函数的提供是为了兼顾很多事件的监听，您可以将这些函数放到不同的地方调用

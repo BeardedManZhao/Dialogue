@@ -1,14 +1,13 @@
 package dialogue.core.controlled;
 
 import dialogue.ConfigureConstantArea;
+import dialogue.core.controlled.task.StreamCopyTask;
+import dialogue.core.exception.SessionStartException;
 import dialogue.core.master.MasterPersistentSession;
 import dialogue.utils.ExceptionProgress;
 import dialogue.utils.IOUtils;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.SequenceInputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.logging.Level;
 
@@ -20,6 +19,16 @@ import java.util.logging.Level;
  * @author 赵凌宇
  */
 public class ControlledPersistentSession extends ConsoleSession {
+
+    protected final static byte[] NO_STATUS_PROMPT;
+
+    static {
+        try {
+            NO_STATUS_PROMPT = "session >>> There is no data in this persistent session. Please use the \"::exit\" command to exit the session\n".getBytes(ConfigureConstantArea.CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new SessionStartException(e);
+        }
+    }
 
     protected ControlledPersistentSession(int port) {
         super(port);
@@ -51,24 +60,26 @@ public class ControlledPersistentSession extends ConsoleSession {
             DataOutputStream masterDataOutputStream = new DataOutputStream(socket.getOutputStream());
             final Process exec = runtime.exec(command);
             DataOutputStream exeOutputStream1 = new DataOutputStream(exec.getOutputStream());
-            final SequenceInputStream sequenceInputStream = new SequenceInputStream(exec.getInputStream(), exec.getErrorStream());
+            InputStream execInputStream = exec.getInputStream();
+            InputStream execErrorStream = exec.getErrorStream();
             // 线程随时将命令产生的数据发送到主控
-            Thread thread = new Thread(() -> IOUtils.copy(sequenceInputStream, masterDataOutputStream, false, ExceptionProgress.NO_ACTION));
-            thread.start();
+            Thread thread1 = new Thread(new StreamCopyTask(execInputStream, masterDataOutputStream, false, ExceptionProgress.NO_ACTION));
+            Thread thread2 = new Thread(new StreamCopyTask(execErrorStream, masterDataOutputStream, false, ExceptionProgress.NO_ACTION));
+            thread2.start();
+            thread1.start();
             while (true) {
                 // 然后，等待主控的回复
                 String s = masterDataInputStream.readUTF().trim();
-                if (!(thread.isAlive())) {
+                if (!(thread1.isAlive() && thread2.isAlive())) {
                     ConfigureConstantArea.LOGGER.log(Level.INFO, "endSession -> " + command);
                     // 断开持久会话
                     break;
                 } else {
+                    // 如果不是要断开会话，就直接将主控的命令提供给终端任务
                     if (s.length() == 0) {
-                        // 如果不是要断开会话，就直接将主控的命令提供给终端任务
                         exeOutputStream1.write('\n');
                         exeOutputStream1.flush();
                     } else {
-                        // 如果不是要断开会话，就直接将主控的命令提供给终端任务
                         exeOutputStream1.write(s.getBytes(ConfigureConstantArea.CHARSET));
                         exeOutputStream1.flush();
                         ConfigureConstantArea.LOGGER.info(s);
@@ -77,13 +88,13 @@ public class ControlledPersistentSession extends ConsoleSession {
                 }
             }
             // 关闭exe的数据流
-            IOUtils.close(sequenceInputStream);
+            IOUtils.close(execErrorStream);
+            IOUtils.close(execInputStream);
             IOUtils.close(exeOutputStream1);
             ConfigureConstantArea.LOGGER.info("Open stateless");
             // 持久会话已经可以关闭了，现在开启无状态，直到主控关闭持久会话
-            byte[] bytes = "There is no data in this persistent session. Please use the \"::exit\" command to exit the session\n".getBytes(ConfigureConstantArea.CHARSET);
             while (!MasterPersistentSession.MASTER_CLOSE_STRING.equals(masterDataInputStream.readUTF())) {
-                masterDataOutputStream.write(bytes);
+                masterDataOutputStream.write(NO_STATUS_PROMPT);
             }
             masterDataOutputStream.flush();
             IOUtils.close(masterDataInputStream);
@@ -110,5 +121,15 @@ public class ControlledPersistentSession extends ConsoleSession {
     @Override
     public ControlledSession cloneSession(int port) {
         return new ControlledPersistentSession(port);
+    }
+
+    /**
+     * @return 当前会话对象对应的会话编号，从1.0.1版本开始，该函数支持调用。
+     * <p>
+     * The session number does not exist in the manager, so it cannot be logged off. The session number corresponding to the current session object. Starting from version 1.0.1, this function supports calling.
+     */
+    @Override
+    public short getSessionNum() {
+        return CONTROLLED_PERSISTENT_SESSION;
     }
 }

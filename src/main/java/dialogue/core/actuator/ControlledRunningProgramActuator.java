@@ -14,6 +14,10 @@ import java.util.regex.Matcher;
 import static dialogue.core.actuator.MasterRunningProgramActuator.*;
 
 /**
+ * 被控-远程运行程序执行器，该执行器拥有着将 java python c/x++ 以及shell脚本远程运行的能力，本执行器会接收来自对方的程序文件并运行，运行之后将结果返回给对方.
+ * <p>
+ * Controlled - remote running program executor, which has the ability to run java python c/x++and shell scripts remotely. This executor will receive program files from the other side and run them, and return the results to the other side after running
+ *
  * @author 赵凌宇
  */
 public final class ControlledRunningProgramActuator extends ControlledPutFileActuator {

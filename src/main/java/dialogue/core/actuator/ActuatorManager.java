@@ -155,6 +155,16 @@ public final class ActuatorManager implements Session {
     }
 
     /**
+     * @return 当前会话对象对应的会话编号，从1.0.1版本开始，该函数支持调用。
+     * <p>
+     * The session number does not exist in the manager, so it cannot be logged off. The session number corresponding to the current session object. Starting from version 1.0.1, this function supports calling.
+     */
+    @Override
+    public short getSessionNum() {
+        return 1024;
+    }
+
+    /**
      * 返回会话当前运行状态，当一个会话没有在运行的时候，该函数将返回false，一个没有运行中的会话将不具备执行命令与回显数据的能力
      * <p>
      * Returns the current running state of the session. When a session is not running, this function will return false. A session that is not running will not have the ability to execute commands and echo data

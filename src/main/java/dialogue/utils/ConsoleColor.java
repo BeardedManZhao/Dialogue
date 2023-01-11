@@ -19,6 +19,7 @@ public final class ConsoleColor {
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
+    public final static String COLOR_CYAN = "\033[36m";
     public final static String COLOR_YELLOW = "\033[33m";
     public final static String COLOR_GREEN = "\033[32m";
     public final static String COLOR_DEF = "\033[0m";

@@ -40,6 +40,29 @@ public class DialogueManager implements Session {
         }
     }
 
+    /**
+     * 将一个会话从管理者中注销，一般是由框架内部进行管理的
+     *
+     * @param sessionNum 需要被注销的内存占用位。
+     */
+    public static void unRegisterSession(int sessionNum) {
+        if (sessionNum < Session.SESSION_LENGTH) {
+            sessions[sessionNum] = null;
+        } else {
+            ConfigureConstantArea.LOGGER.warning("The session number does not exist in the manager, so it cannot be logged off.\nERROR SessionNum = " + sessionNum);
+        }
+    }
+
+    /**
+     * @return 当前会话对象对应的会话编号，从1.0.1版本开始，该函数支持调用。
+     * <p>
+     * The session number does not exist in the manager, so it cannot be logged off. The session number corresponding to the current session object. Starting from version 1.0.1, this function supports calling.
+     */
+    @Override
+    public short getSessionNum() {
+        return 0b10000000000;
+    }
+
     @Override
     public boolean isRunning() {
         return true;

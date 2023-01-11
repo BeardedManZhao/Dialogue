@@ -20,4 +20,10 @@ public interface Controlled {
      */
     InetAddress ConnectedMaster();
 
+    /**
+     * 终止会话中的所有服务，彻底停止该会话的一切行为，同时将该会话在端口中的服务也终止
+     * <p>
+     * Terminate all services in the session, completely stop all behaviors of the session, and also terminate the services in the port of the session
+     */
+    void shutDown();
 }

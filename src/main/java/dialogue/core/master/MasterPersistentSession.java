@@ -1,11 +1,13 @@
 package dialogue.core.master;
 
 import dialogue.ConfigureConstantArea;
+import dialogue.Session;
+import dialogue.core.controlled.task.StreamCopyTask;
 import dialogue.core.exception.SessionRunException;
 import dialogue.core.exception.SessionStartException;
+import dialogue.core.result.StringResult;
 import dialogue.utils.ConsoleColor;
 import dialogue.utils.ExceptionProgress;
-import dialogue.utils.IOUtils;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -15,6 +17,8 @@ import java.util.Scanner;
 
 /**
  * 持久会话实现类，在该会话对象中，支持持久运行的命令，使得在终端命令上的灵活性达到最高。
+ * <p>
+ * Persistent session implementation class. In this session object, persistent running commands are supported to maximize the flexibility of terminal commands.
  *
  * @author 赵凌宇
  */
@@ -22,7 +26,16 @@ public class MasterPersistentSession extends TCPSession {
 
     public static final String MASTER_CLOSE_STRING = "::exit";
 
+    protected final static byte[] SESSION_CLOSE_ERROR;
     protected final static ServerSocket PERSISTENT_SESSION_SOCKET;
+
+    static {
+        try {
+            SESSION_CLOSE_ERROR = "session >>> The persistent session cannot exit until it is allowed to end.".getBytes(ConfigureConstantArea.CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            throw new SessionStartException(e);
+        }
+    }
 
     static {
         ServerSocket serverSocket;
@@ -48,6 +61,35 @@ public class MasterPersistentSession extends TCPSession {
      */
     public static MasterPersistentSession getInstance() {
         return (MasterPersistentSession) getInstance(MASTER_PERSISTENT_SESSION);
+    }
+
+    /**
+     * 内部提取
+     *
+     * @param accept                 接收到的文件服务请求
+     * @param masterDataInputStream  文件服务请求对应的数据输入流
+     * @param masterDataOutputStream 文件服务请求对应的数据输出流
+     * @param command                本次要发送出去的命令
+     * @param udfOutputStream        自定义的数据输出流
+     * @return 新的状态数值
+     * @throws IOException 过程中的传输数据异常。
+     */
+    private static boolean status(Socket accept, DataInputStream masterDataInputStream, DataOutputStream masterDataOutputStream, String command, OutputStream udfOutputStream) throws IOException {
+        boolean status = true;
+        masterDataOutputStream.writeUTF(command);
+        masterDataOutputStream.flush();
+        if (MASTER_CLOSE_STRING.equalsIgnoreCase(command)) {
+            // 代表退出持久会话，如果连接没有关闭，代表不能进行关闭操作
+            if (accept.isConnected()) {
+                status = false;
+                masterDataInputStream.close();
+                masterDataOutputStream.close();
+                accept.close();
+            } else {
+                udfOutputStream.write(MasterPersistentSession.SESSION_CLOSE_ERROR);
+            }
+        }
+        return status;
     }
 
     /**
@@ -107,29 +149,24 @@ public class MasterPersistentSession extends TCPSession {
             ConfigureConstantArea.LOGGER.info("| * >>> Current session connection command:" + command);
             if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
                 System.out.print(ConsoleColor.COLOR_YELLOW);
-            }
-            // 不断的监听输入流，向被控设备传递持久会话的命令，直到持久会话断开
-            new Thread(() -> IOUtils.copy(masterDataInputStream, udfOutputStream, false, ExceptionProgress.NO_ACTION)).start();
-            while (status) {
-                // 就等待输入命令，并传递给被控
-                String s = this.udfInputStreamScanner.nextLine();
-                masterDataOutputStream.writeUTF(s);
-                masterDataOutputStream.flush();
-                if (MASTER_CLOSE_STRING.equalsIgnoreCase(s)) {
-                    // 代表退出持久会话，如果连接没有关闭，代表不能进行关闭操作
-                    if (accept.isConnected()) {
-                        status = false;
-                        masterDataInputStream.close();
-                        masterDataOutputStream.close();
-                        accept.close();
-                    } else {
-                        System.out.println("session >>> The persistent session cannot exit until it is allowed to end.");
-                    }
+                // 不断的监听输入流，向被控设备传递持久会话的命令，直到持久会话断开
+                new Thread(new StreamCopyTask(masterDataInputStream, udfOutputStream, false, ExceptionProgress.NO_ACTION)).start();
+                while (status) {
+                    // 就等待输入命令，并传递给被控
+                    String s = this.udfInputStreamScanner.nextLine();
+                    status = status(accept, masterDataInputStream, masterDataOutputStream, s, udfOutputStream);
                 }
-            }
-            // 当会话断开时候返回持久会话已结束
-            if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
+                // 当会话断开时候返回持久会话已结束
                 System.out.print(ConsoleColor.COLOR_DEF);
+            } else {
+                // 不断的监听输入流，向被控设备传递持久会话的命令，直到持久会话断开
+                new Thread(new StreamCopyTask(masterDataInputStream, udfOutputStream, false, ExceptionProgress.NO_ACTION)).start();
+                while (status) {
+                    // 就等待输入命令，并传递给被控
+                    String s = this.udfInputStreamScanner.nextLine();
+                    status = status(accept, masterDataInputStream, masterDataOutputStream, s, udfOutputStream);
+                }
+                // 当会话断开时候返回持久会话已结束
             }
             ConfigureConstantArea.LOGGER.info("| * >>> This session is very smooth and will end soon.");
             ConfigureConstantArea.LOGGER.info("+==========================Ending persistent session==============================+");
@@ -138,6 +175,27 @@ public class MasterPersistentSession extends TCPSession {
             throw new SessionRunException(e);
         } catch (NullPointerException e) {
             throw SESSION_NOT_STARTED;
+        }
+    }
+
+    /**
+     * 运行一个命令，并返回运行结果。
+     * <p>
+     * Run a command and return the running result.
+     *
+     * @param command 需要在主机上运行的命令
+     *                <p>
+     *                Commands that need to be run on the host
+     * @return 运行命令之后的结果数据，该函数与普通的runCommand的最大区别在于该函数不会轻易的抛出异常信息，更多的是将异常信息记录再结果对象中
+     * <p>
+     * The result data after running the command. The biggest difference between this function and the common runCommand is that this function does not easily throw exception information, and more importantly, it records the exception information in the result object
+     */
+    @Override
+    public StringResult runCommandGetResult(String command) {
+        try {
+            return new StringResult(true, Session.MASTER_PERSISTENT_SESSION, runCommand(command));
+        } catch (Exception e) {
+            return new StringResult(false, Session.MASTER_PERSISTENT_SESSION, e.toString());
         }
     }
 
@@ -179,5 +237,15 @@ public class MasterPersistentSession extends TCPSession {
     @Override
     public MasterSession cloneSession() {
         return new MasterPersistentSession();
+    }
+
+    /**
+     * @return 当前会话对象对应的会话编号，从1.0.1版本开始，该函数支持调用。
+     * <p>
+     * The session number does not exist in the manager, so it cannot be logged off. The session number corresponding to the current session object. Starting from version 1.0.1, this function supports calling.
+     */
+    @Override
+    public short getSessionNum() {
+        return MASTER_PERSISTENT_SESSION;
     }
 }

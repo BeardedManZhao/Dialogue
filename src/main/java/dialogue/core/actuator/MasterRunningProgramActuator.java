@@ -26,12 +26,13 @@ public class MasterRunningProgramActuator extends MasterPutFileActuator {
     public final static String EXE_OR_BAT_MODE = "all";
     private final static String START_PUT = "Start put program file....";
     private final static String START_RUNNING = "Start running the program....";
-    private final static String ERROR = "Incorrect syntax! => running [mode] [filePath]\n" +
+    private final static String ERROR = "Incorrect syntax! => running [mode] [filePath] [Parameters]\n" +
             "\t[mode]: \n" +
-            "\t\tjava : 远程运行一个Java程序，Jar包。\n" +
-            "\t\tpy   : 远程运行一个python文件，py。\n" +
-            "\t\tall  : 远程运行一个控制台可直接启动的文件，例如exe或脚本。\n" +
-            "\t[filePath] : 需要被远程运行的程序文件。\n";
+            "\t\tjava   : 远程运行一个Java程序，Jar包。\n" +
+            "\t\tpy     : 远程运行一个python文件，py。\n" +
+            "\t\tall    : 远程运行一个控制台可直接启动的文件，例如exe或脚本。\n" +
+            "\t[filePath]   : 需要被远程运行的程序文件。\n" +
+            "\t[Parameters] : 运行程序时需要传递给程序的参数\n";
 
     public MasterRunningProgramActuator(ServerSocket fileSocket, OutputStream outputStream, InputStream inputStream) {
         super(fileSocket, outputStream, inputStream);

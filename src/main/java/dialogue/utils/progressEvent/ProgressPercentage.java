@@ -52,4 +52,15 @@ public class ProgressPercentage extends ProgressFileNumber {
         exc((ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE ? "Getting data ok !!!!\n%100" : "%100"), COLOR_GREEN);
         clear();
     }
+
+
+    /**
+     * 计算一个数值的百分比字符串
+     *
+     * @param size 当前进度计算的的字节数值
+     * @return 当前文件读写进度百分比
+     */
+    protected String percentageString(long size) {
+        return "%" + ((size / maxSize) * 100);
+    }
 }

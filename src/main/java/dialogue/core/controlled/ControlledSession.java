@@ -5,6 +5,8 @@ import dialogue.DialogueManager;
 import dialogue.Host;
 import dialogue.Session;
 import dialogue.core.exception.SessionExtractionException;
+import dialogue.core.exception.SessionStartException;
+import dialogue.utils.IOUtils;
 import dialogue.utils.ProgressEvent;
 
 import java.io.IOException;
@@ -38,8 +40,6 @@ public abstract class ControlledSession implements Controlled, Host, Session {
     public final static String SEND_TEXT = "send/text";
     public final static String SEND_FILE_BYTE = "send/bit";
     public final static String SEND_FILE_ERROR = "send/error";
-
-
     protected final static Runtime runtime = Runtime.getRuntime();
     private final static String INIT_INFO = "Successfully initialized the server";
     private final static String INIT_ERROR = "Controlled initialization failed";
@@ -53,11 +53,11 @@ public abstract class ControlledSession implements Controlled, Host, Session {
 
     protected ControlledSession(int port) {
         try {
-            serverSocket = new ServerSocket(port);
+            this.serverSocket = new ServerSocket(port);
             ConfigureConstantArea.LOGGER.log(Level.INFO, INIT_INFO);
         } catch (IOException e) {
             ConfigureConstantArea.LOGGER.log(Level.SEVERE, INIT_ERROR);
-            throw new RuntimeException(e);
+            throw new SessionStartException(INIT_ERROR, e);
         }
     }
 
@@ -96,7 +96,7 @@ public abstract class ControlledSession implements Controlled, Host, Session {
      * Judge whether the session object is running. If true is returned, the session system is started and can be used normally. If false is returned, the start function needs to be called to start the session.
      */
     public boolean isRunning() {
-        return Running;
+        return this.Running;
     }
 
     /**
@@ -133,21 +133,21 @@ public abstract class ControlledSession implements Controlled, Host, Session {
         }
         try {
             ConfigureConstantArea.LOGGER.log(Level.INFO, "The accused is ready to start connection.");
-            accept = serverSocket.accept();
-            inputStream = accept.getInputStream();
-            outputStream = accept.getOutputStream();
+            this.accept = serverSocket.accept();
+            this.inputStream = accept.getInputStream();
+            this.outputStream = accept.getOutputStream();
             final String send_file_byte = SEND_FILE_BYTE + " ok!";
             final String send_file_error = SEND_FILE_ERROR + " error.....";
             final String send_text = SEND_TEXT + " ok!";
             final String return_to_text_data = "return to text data";
             final byte[] buffer = new byte[ConfigureConstantArea.TCP_BUFFER_MAX_SIZE];
             if (progressEvent != null) {
-                progressEvent.function1(accept);
-                progressEvent.function2(outputStream);
-                progressEvent.function3(inputStream);
+                progressEvent.function1(this.accept);
+                progressEvent.function2(this.outputStream);
+                progressEvent.function3(this.inputStream);
             }
-            while (this.Running) {
-                int offset = inputStream.read(buffer);
+            while (this.Running && this.inputStream != null) {
+                int offset = this.inputStream.read(buffer);
                 if (offset > 0) {
                     String s = runCommand(new String(buffer, 0, offset, ConfigureConstantArea.CHARSET));
                     if (SEND_FILE_BYTE.equals(s)) {
@@ -165,24 +165,13 @@ public abstract class ControlledSession implements Controlled, Host, Session {
                     outputStream.write("ok!!".getBytes(StandardCharsets.UTF_8));
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | NullPointerException ignored) {
+            // 这里是因为调用了stop或主控断开了连接，会有异常出现，在这里不去捕获，忽略即可
+            // 真正致命的错误在 serverSocket 初始化时就已经进行了处理了！！！
         } finally {
             if (accept != null) {
-                if (outputStream != null) {
-                    try {
-                        outputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                IOUtils.close(this.outputStream);
+                IOUtils.close(this.inputStream);
                 try {
                     accept.close();
                 } catch (IOException e) {
@@ -194,7 +183,7 @@ public abstract class ControlledSession implements Controlled, Host, Session {
                 ConfigureConstantArea.LOGGER.log(Level.INFO, "Accused to actively stop operation...");
             } else {
                 ConfigureConstantArea.LOGGER.log(Level.WARNING, "The master controller disconnects this session, and the accused prepares to accept a new connection again.");
-                start("reboot");
+                this.start("reboot");
             }
         }
     }
@@ -203,6 +192,8 @@ public abstract class ControlledSession implements Controlled, Host, Session {
      * 终止主机，停止运行中的逻辑与程序，终止该主机对应的所有功能。
      * <p>
      * Terminate the host, stop the running logic and program, and terminate all functions corresponding to the host.
+     * <p>
+     * 需要注意，从1.0.1版本优化洲，stop的被控会话并不会导致被控会话消失，您可以重新进行start
      *
      * @param args 主机关闭的参数
      */
@@ -212,17 +203,23 @@ public abstract class ControlledSession implements Controlled, Host, Session {
             ConfigureConstantArea.LOGGER.log(Level.WARNING, STOP_WARN);
             return;
         }
-        if (serverSocket != null) {
-            try {
-                serverSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         ConfigureConstantArea.LOGGER.info("The operation of terminating the controlled session has been completed. You can manually close the current session. Of course, if you do not close the session, the session will be automatically closed when the next master control request is sent.");
         this.Running = false;
         this.accept = null;
         this.startDate = null;
+    }
+
+
+    /**
+     * 终止会话中的所有服务，彻底停止该会话的一切行为，同时将该会话在端口中的服务也终止，需要注意的是，从该函数调用之后，该会话将不能在使用，等到下一次使用的时候 getInstance 将会重新实例化一个被控会话。
+     * <p>
+     * Terminate all services in the session, completely stop all behaviors of the session, and also terminate the services in the port of the session. It should be noted that after the function call, the session will not be used. When the next use, getInstance will reinitialize a charged session.
+     */
+    @Override
+    public void shutDown() {
+        IOUtils.close(this.serverSocket);
+        // 开始清理本类在管理者中的内存占用
+        DialogueManager.unRegisterSession(getSessionNum());
     }
 
     /**

@@ -1,9 +1,15 @@
 package dialogue;
 
+import dialogue.core.exception.SessionExtractionException;
 import dialogue.core.exception.SessionRunException;
 
 import java.util.regex.Pattern;
 
+/**
+ * 会话对象，是直接与用户进行交互的类。
+ * <p>
+ * Session objects are classes that interact directly with users.
+ */
 public interface Session {
 
     /**
@@ -11,6 +17,13 @@ public interface Session {
      */
     SessionRunException SESSION_NOT_STARTED = new SessionRunException("Session not started");
     Pattern COMMAND_PATTERN = Pattern.compile("\\s*?(\\S+)\\s*");
+
+    /**
+     * 预置会话，是库中不可被管理的会话，这些会话的存在是被库中的每一个组件所依赖的。
+     * <p>
+     * Preset sessions are unmanageable sessions in the library. The existence of these sessions is dependent on each component in the library.
+     */
+    short PRESET_SESSION = 0b10000000000;
 
     /**
      * 主控会话-TCP命令会话编号，该对象能够实现大部分命令的处理，通过TCP协议将操作在远程设备中执行，并获取到回显结果
@@ -72,8 +85,18 @@ public interface Session {
      * @return session编号对应的会话对象，不同的会话对象由不同的功能与特征
      */
     static Session getInstance(int SessionNum) {
+        if (SessionNum == PRESET_SESSION) {
+            throw new SessionExtractionException("Preset sessions cannot be extracted and used separately.\nERROR SessionNum = " + PRESET_SESSION);
+        }
         return DialogueManager.getSession(SessionNum);
     }
+
+    /**
+     * @return 当前会话对象对应的会话编号，从1.0.1版本开始，该函数支持调用。
+     * <p>
+     * The session number does not exist in the manager, so it cannot be logged off. The session number corresponding to the current session object. Starting from version 1.0.1, this function supports calling.
+     */
+    short getSessionNum();
 
     /**
      * 返回会话当前运行状态，当一个会话没有在运行的时候，该函数将返回false，一个没有运行中的会话将不具备执行命令与回显数据的能力

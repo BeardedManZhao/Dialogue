@@ -27,7 +27,7 @@ public final class ConfigureConstantArea {
      * <p>
      * The version code x.xx of this library represents the x.x.x version. Different versions have different compatibility effects
      */
-    public final static float VERISON = 1.0f;
+    public final static float VERSION = 1.01f;
 
     /**
      * 配置文件目录
@@ -115,19 +115,28 @@ public final class ConfigureConstantArea {
             PROGRESS_COLOR_DISPLAY = Boolean.parseBoolean(properties.getProperty("progress.color.display", "true"));
             PERSISTENT_SESSION_CHANNEL_PORT = Integer.parseInt(properties.getProperty("persistent.session.channel.port", "10003"));
         }
+
+        boolean levelIsOk = false;
+
         if ("bar".equals(FILE_PROGRESS_STRING)) {
             FILE_PROGRESS = ProgressEvent.PROGRESS_FILE_BAR;
         } else if ("number".equals(FILE_PROGRESS_STRING)) {
             FILE_PROGRESS = ProgressEvent.PROGRESS_FILE_NUMBER;
         } else if ("percentage".equals(FILE_PROGRESS_STRING)) {
             FILE_PROGRESS = ProgressEvent.PROGRESS_FILE_PERCENTAGE;
+        } else if ("logger".equals(FILE_PROGRESS_STRING) && LOGGER_LEVEL.equalsIgnoreCase("info")) {
+            FILE_PROGRESS = ProgressEvent.PROGRESS_FILE_LOG;
+            LOGGER.setLevel(Level.INFO);
+            levelIsOk = true;
         } else if ("null".equals(FILE_PROGRESS_STRING)) {
             FILE_PROGRESS = null;
         } else {
             throw new RuntimeException("Unknown File_Progress: " + LOGGER_LEVEL);
         }
-        loadLogger();
-
+        if (!levelIsOk) {
+            // 如果在初始化进度条的时候顺便判断到了日志级别，就不在进行级别设置了
+            loadLogger();
+        }
         clearExe();
     }
 

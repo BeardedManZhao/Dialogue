@@ -4,6 +4,7 @@ import dialogue.ConfigureConstantArea;
 import dialogue.Session;
 import dialogue.core.actuator.*;
 import dialogue.core.exception.SessionRunException;
+import dialogue.core.result.StringResult;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -134,6 +135,27 @@ public class MasterFileSession extends TCPSession {
     }
 
     /**
+     * 运行一个命令，并返回运行结果。
+     * <p>
+     * Run a command and return the running result.
+     *
+     * @param command 需要在主机上运行的命令
+     *                <p>
+     *                Commands that need to be run on the host
+     * @return 运行命令之后的结果数据，该函数与普通的runCommand的最大区别在于该函数不会轻易的抛出异常信息，更多的是将异常信息记录再结果对象中
+     * <p>
+     * The result data after running the command. The biggest difference between this function and the common runCommand is that this function does not easily throw exception information, and more importantly, it records the exception information in the result object
+     */
+    @Override
+    public StringResult runCommandGetResult(String command) {
+        try {
+            return new StringResult(true, Session.MASTER_FILE_SESSION, runCommand(command));
+        } catch (Exception e) {
+            return new StringResult(false, Session.MASTER_FILE_SESSION, e.toString());
+        }
+    }
+
+    /**
      * 将当前会话克隆一个出来，使得一种会话可以提供给多个网络连接使用，需要注意的是，克隆出来的会话将不会被管理者所管理。
      * <p>
      * Clone the current session to make one session available to multiple network connections. Note that the cloned session will not be managed by the manager.
@@ -145,5 +167,15 @@ public class MasterFileSession extends TCPSession {
     @Override
     public MasterSession cloneSession() {
         return new MasterFileSession();
+    }
+
+    /**
+     * @return 当前会话对象对应的会话编号，从1.0.1版本开始，该函数支持调用。
+     * <p>
+     * The session number does not exist in the manager, so it cannot be logged off. The session number corresponding to the current session object. Starting from version 1.0.1, this function supports calling.
+     */
+    @Override
+    public short getSessionNum() {
+        return MASTER_FILE_SESSION;
     }
 }
