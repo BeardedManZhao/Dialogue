@@ -26,7 +26,7 @@ coordinates.
 
 ```gradle
 dependencies {
-    implementation 'io.github.BeardedManZhao:dialogue:1.0.1'
+    implementation 'io.github.BeardedManZhao:dialogue:1.0.2'
 }
 ```
 
