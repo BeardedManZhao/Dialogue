@@ -23,7 +23,7 @@ Dialogue 是一个针对远程控制而制造出来的工具，在该框架内�
 
 ```gradle
 dependencies {
-    implementation 'io.github.BeardedManZhao:dialogue:1.0.1'
+    implementation 'io.github.BeardedManZhao:dialogue:1.0.2'
 }
 ```
 
