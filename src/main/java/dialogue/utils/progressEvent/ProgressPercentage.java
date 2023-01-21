@@ -21,7 +21,7 @@ public class ProgressPercentage extends ProgressFileNumber {
      */
     @Override
     public void function1(Integer type) {
-        exc("%0", COLOR_YELLOW);
+        exc("0%", COLOR_YELLOW);
     }
 
     /**
@@ -35,9 +35,11 @@ public class ProgressPercentage extends ProgressFileNumber {
         if (++batch == ConfigureConstantArea.PROGRESS_REFRESH_THRESHOLD) {
             batch = 0;
             if (count < maxSize) {
-                exc((ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE ? "Getting data.......\n%" : "%") + ((count / maxSize) * 100), COLOR_YELLOW);
+                if (ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE) {
+                    exc("Getting data.......\n" + (count / maxSize * 100) + '%', COLOR_YELLOW);
+                }
             } else {
-                exc("%98", COLOR_YELLOW);
+                exc("98%", COLOR_YELLOW);
             }
         }
     }
@@ -49,7 +51,7 @@ public class ProgressPercentage extends ProgressFileNumber {
      */
     @Override
     public void function3(Integer type) {
-        exc((ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE ? "Getting data ok !!!!\n%100" : "%100"), COLOR_GREEN);
+        exc((ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE ? "Getting data ok !!!!\n100%" : "100%"), COLOR_GREEN);
         clear();
     }
 
@@ -61,6 +63,6 @@ public class ProgressPercentage extends ProgressFileNumber {
      * @return 当前文件读写进度百分比
      */
     protected String percentageString(long size) {
-        return "%" + ((size / maxSize) * 100);
+        return ((size / maxSize) * 100) + "%";
     }
 }

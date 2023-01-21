@@ -27,6 +27,8 @@ public class ControlledFileSession extends ConsoleSession {
     protected ControlledPutFileActuator controlledPutFileActuator;
     protected ControlledGetsDirActuator controlledGetsDirActuator;
     protected ControlledPutsDirActuator controlledPutsDirActuator;
+    protected ControlledSeeDirActuator controlledSeeDirActuator;
+    protected ControlledSeeDirNameActuator controlledSeeDirNameActuator;
     protected ControlledRunningProgramActuator controlledRunningProgramActuator;
 
     private final ProgressEvent<Socket, OutputStream, InputStream> INIT_ProgressEvent = new ProgressEvent<Socket, OutputStream, InputStream>() {
@@ -51,12 +53,16 @@ public class ControlledFileSession extends ConsoleSession {
             controlledPutFileActuator = new ControlledPutFileActuator(tempSocket, type, tempOut);
             controlledGetsDirActuator = new ControlledGetsDirActuator(tempSocket, type, tempOut);
             controlledPutsDirActuator = new ControlledPutsDirActuator(tempSocket, type, tempOut);
+            controlledSeeDirActuator = new ControlledSeeDirActuator(tempSocket, type, tempOut);
+            controlledSeeDirNameActuator = new ControlledSeeDirNameActuator(tempSocket, type, tempOut);
             controlledRunningProgramActuator = new ControlledRunningProgramActuator(tempSocket, type, tempOut);
             ActuatorManager.registerControlledActuator(controlledGetActuator);
             ActuatorManager.registerControlledActuator(controlledLookFileActuator);
             ActuatorManager.registerControlledActuator(controlledPutFileActuator);
             ActuatorManager.registerControlledActuator(controlledGetsDirActuator);
             ActuatorManager.registerControlledActuator(controlledPutsDirActuator);
+            ActuatorManager.registerControlledActuator(controlledSeeDirActuator);
+            ActuatorManager.registerControlledActuator(controlledSeeDirNameActuator);
             ActuatorManager.registerControlledActuator(controlledRunningProgramActuator);
         }
     };
@@ -98,6 +104,8 @@ public class ControlledFileSession extends ConsoleSession {
         ActuatorManager.unControlledRegister(this.controlledPutFileActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledGetsDirActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledPutsDirActuator.getName());
+        ActuatorManager.unControlledRegister(this.controlledSeeDirActuator.getName());
+        ActuatorManager.unControlledRegister(this.controlledSeeDirNameActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledRunningProgramActuator.getName());
     }
 

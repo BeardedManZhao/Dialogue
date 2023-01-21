@@ -60,7 +60,7 @@ public class DialogueManager implements Session {
      */
     @Override
     public short getSessionNum() {
-        return 0b10000000000;
+        return PRESET_SESSION;
     }
 
     @Override

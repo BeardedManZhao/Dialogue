@@ -21,7 +21,7 @@ public class ProgressFileLog extends ProgressPercentage {
      */
     @Override
     public void function1(Integer type) {
-        ConfigureConstantArea.LOGGER.info(getLog("%0", count, ConsoleColor.ANSI_YELLOW));
+        ConfigureConstantArea.LOGGER.info(getLog("0%", count, ConsoleColor.ANSI_YELLOW));
     }
 
     /**
@@ -31,7 +31,12 @@ public class ProgressFileLog extends ProgressPercentage {
      */
     @Override
     public void function2(Integer type) {
-        ConfigureConstantArea.LOGGER.info(getLog(percentageString(count += type), count, ConsoleColor.ANSI_YELLOW));
+        if (++batch == ConfigureConstantArea.PROGRESS_REFRESH_THRESHOLD) {
+            batch = 0;
+            ConfigureConstantArea.LOGGER.info(getLog(percentageString(count += type), count, ConsoleColor.ANSI_YELLOW));
+        } else {
+            count += type;
+        }
     }
 
     /**
@@ -42,7 +47,7 @@ public class ProgressFileLog extends ProgressPercentage {
     @Override
     public void function3(Integer type) {
         if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
-            ConfigureConstantArea.LOGGER.info(getLog("%100", count, ConsoleColor.ANSI_GREEN));
+            ConfigureConstantArea.LOGGER.info(getLog("100%", count, ConsoleColor.ANSI_GREEN));
         }
         clear();
     }

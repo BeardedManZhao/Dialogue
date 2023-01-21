@@ -40,6 +40,8 @@ public class MasterFileSession extends TCPSession {
     protected MasterPutFileActuator masterPutFileActuator;
     protected MasterGetsDirActuator masterGetsDirActuator;
     protected MasterPutsDirActuator masterPutsDirActuator;
+    protected MasterSeeDirActuator masterSeeDirActuator;
+    protected MasterSeeDirNameActuator masterSeeDirNameActuator;
     protected MasterRunningProgramActuator masterRunningProgramActuator;
 
     protected MasterFileSession() {
@@ -65,12 +67,16 @@ public class MasterFileSession extends TCPSession {
         this.masterPutFileActuator = new MasterPutFileActuator(fileSocket, outputStream, inputStream);
         this.masterGetsDirActuator = new MasterGetsDirActuator(fileSocket, outputStream);
         this.masterPutsDirActuator = new MasterPutsDirActuator(fileSocket, outputStream);
+        this.masterSeeDirActuator = new MasterSeeDirActuator(fileSocket, outputStream);
+        this.masterSeeDirNameActuator = new MasterSeeDirNameActuator(fileSocket, outputStream);
         this.masterRunningProgramActuator = new MasterRunningProgramActuator(fileSocket, outputStream, inputStream);
         ActuatorManager.registerMasterActuator(masterLookFileActuator);
         ActuatorManager.registerMasterActuator(masterGetFileActuator);
         ActuatorManager.registerMasterActuator(masterPutFileActuator);
         ActuatorManager.registerMasterActuator(masterGetsDirActuator);
         ActuatorManager.registerMasterActuator(masterPutsDirActuator);
+        ActuatorManager.registerMasterActuator(masterSeeDirActuator);
+        ActuatorManager.registerMasterActuator(masterSeeDirNameActuator);
         ActuatorManager.registerMasterActuator(masterRunningProgramActuator);
     }
 
@@ -90,6 +96,8 @@ public class MasterFileSession extends TCPSession {
         ActuatorManager.unMasterRegister(this.masterPutFileActuator.getName());
         ActuatorManager.unMasterRegister(this.masterGetsDirActuator.getName());
         ActuatorManager.unMasterRegister(this.masterPutsDirActuator.getName());
+        ActuatorManager.unMasterRegister(this.masterSeeDirActuator.getName());
+        ActuatorManager.unMasterRegister(this.masterSeeDirNameActuator.getName());
         ActuatorManager.unMasterRegister(this.masterRunningProgramActuator.getName());
     }
 

@@ -47,7 +47,7 @@ public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integ
         if (++batch == ConfigureConstantArea.PROGRESS_REFRESH_THRESHOLD) {
             batch = 0;
             if (ConfigureConstantArea.PROGRESS_COMPATIBILITY_MODE) {
-                exc("%" + ((count / maxSize) * 100) + '\n' + (count += type) + temp, COLOR_YELLOW);
+                exc(((count / maxSize) * 100) + "%\n" + (count += type) + temp, COLOR_YELLOW);
             } else {
                 exc((count += type) + temp, COLOR_YELLOW);
             }
@@ -63,7 +63,7 @@ public class ProgressFileNumber implements ProgressEvent<Integer, Integer, Integ
      */
     @Override
     public void function3(Integer type) {
-        exc("\n%" + ((count / maxSize) * 100) + '\n' + (count += type) + temp, COLOR_GREEN);
+        exc('\n' + ((count / maxSize) * 100) + "%\n" + (count += type) + temp, COLOR_GREEN);
         if (ConfigureConstantArea.PROGRESS_COLOR_DISPLAY) {
             System.out.println("\nSuccessfully read data of [\033[32m" + (count + type) + "\033[0m] bytes in total!");
         } else {

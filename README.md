@@ -18,7 +18,7 @@ coordinates.
 <dependency>
     <groupId>io.github.BeardedManZhao</groupId>
     <artifactId>dialogue</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -85,20 +85,24 @@ However, the use of these functions has certain risks. Please be careful!
 
 ### Actuator list
 
-| Actuator type                                           | Actuator command | 支持版本   | Session to which the actuator belongs | function                                                                |
-|---------------------------------------------------------|------------------|--------|---------------------------------------|-------------------------------------------------------------------------|
-| dialogue.core.actuator.MasterGetFileActuator            | get              | v1.0.0 | MASTER_FILE_SESSION                   | Receive documents from controlled equipment                             |
-| dialogue.core.actuator.ControlledGetFileActuator        | get              | v1.0.0 | CONTROLLED_FILE_SESSION               | Sending files to the master control device                              |
-| dialogue.core.actuator.MasterGetsDirActuator            | gets             | v1.0.0 | MASTER_FILE_SESSION                   | Receive a batch of documents from the controlled equipment              |
-| dialogue.core.actuator.ControlledGetsDirActuator        | gets             | v1.0.0 | CONTROLLED_FILE_SESSION               | Send a batch of files to the master control device                      |
-| dialogue.core.actuator.MasterLookFileActuator           | look             | v1.0.0 | MASTER_FILE_SESSION                   | View the contents of a file in the controlled device                    |
-| dialogue.core.actuator.ControlledLookFileActuator       | look             | v1.0.0 | CONTROLLED_FILE_SESSION               | Transfer file data to the master device                                 |
-| dialogue.core.actuator.MasterPutFileActuator            | put              | v1.0.0 | MASTER_FILE_SESSION                   | Sending files to controlled equipment                                   |
-| dialogue.core.actuator.ControlledPutFileActuator        | put              | v1.0.0 | CONTROLLED_FILE_SESSION               | Receive files from the master control device                            |
-| dialogue.core.actuator.MasterPutsDirActuator            | puts             | v1.0.0 | MASTER_FILE_SESSION                   | Send a batch of documents to the controlled equipment                   |
-| dialogue.core.actuator.ControlledPutsDirActuator        | puts             | v1.0.0 | CONTROLLED_FILE_SESSION               | Receive a batch of files from the master control device                 |
-| dialogue.core.actuator.MasterRunningProgramActuator     | running          | v1.0.1 | MASTER_FILE_SESSION                   | Pass the program file to the remote host to run and receive the results |
-| dialogue.core.actuator.ControlledRunningProgramActuator | running          | v1.0.1 | CONTROLLED_FILE_SESSION               | Receive the program file and run it, then return the result             |
+| Actuator type                                           | Actuator command | 支持版本   | Session to which the actuator belongs | function                                                                                                      |
+|---------------------------------------------------------|------------------|--------|---------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| dialogue.core.actuator.MasterGetFileActuator            | get              | v1.0.0 | MASTER_FILE_SESSION                   | Receive documents from controlled equipment                                                                   |
+| dialogue.core.actuator.ControlledGetFileActuator        | get              | v1.0.0 | CONTROLLED_FILE_SESSION               | Sending files to the master control device                                                                    |
+| dialogue.core.actuator.MasterGetsDirActuator            | gets             | v1.0.0 | MASTER_FILE_SESSION                   | Receive a batch of documents from the controlled equipment                                                    |
+| dialogue.core.actuator.ControlledGetsDirActuator        | gets             | v1.0.0 | CONTROLLED_FILE_SESSION               | Send a batch of files to the master control device                                                            |
+| dialogue.core.actuator.MasterLookFileActuator           | look             | v1.0.0 | MASTER_FILE_SESSION                   | View the contents of a file in the controlled device                                                          |
+| dialogue.core.actuator.ControlledLookFileActuator       | look             | v1.0.0 | CONTROLLED_FILE_SESSION               | Transfer file data to the master device                                                                       |
+| dialogue.core.actuator.MasterPutFileActuator            | put              | v1.0.0 | MASTER_FILE_SESSION                   | Sending files to controlled equipment                                                                         |
+| dialogue.core.actuator.ControlledPutFileActuator        | put              | v1.0.0 | CONTROLLED_FILE_SESSION               | Receive files from the master control device                                                                  |
+| dialogue.core.actuator.MasterPutsDirActuator            | puts             | v1.0.0 | MASTER_FILE_SESSION                   | Send a batch of documents to the controlled equipment                                                         |
+| dialogue.core.actuator.ControlledPutsDirActuator        | puts             | v1.0.0 | CONTROLLED_FILE_SESSION               | Receive a batch of files from the master control device                                                       |
+| dialogue.core.actuator.MasterRunningProgramActuator     | running          | v1.0.1 | MASTER_FILE_SESSION                   | Pass the program file to the remote host to run and receive the results                                       |
+| dialogue.core.actuator.ControlledRunningProgramActuator | running          | v1.0.1 | CONTROLLED_FILE_SESSION               | Receive the program file and run it, then return the result                                                   |
+| dialogue.core.actuator.MasterSeeDirActuator             | see-dir          | v1.0.2 | MASTER_FILE_SESSION                   | Query the directory structure in the controlled equipment                                                     |
+| dialogue.core.actuator.ControlledSeeDirActuator         | see-dir          | v1.0.2 | CONTROLLED_FILE_SESSION               | Resolve the directory structure according to the requirements of the master controller and return the results |
+| dialogue.core.actuator.MasterSeeDirNameActuator         | see-dirN         | v1.0.2 | MASTER_FILE_SESSION                   | Query all file names in the directory of the controlled equipment                                             |
+| dialogue.core.actuator.ControlledSeeDirNameActuator     | see-dirN         | v1.0.2 | CONTROLLED_FILE_SESSION               | Resolve the directory file name according to the master's requirements and return the result                  |
 
 # Example of operation
 

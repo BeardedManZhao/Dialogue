@@ -15,7 +15,7 @@ Dialogue 是一个针对远程控制而制造出来的工具，在该框架内�
 <dependency>
     <groupId>io.github.BeardedManZhao</groupId>
     <artifactId>dialogue</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -61,20 +61,24 @@ dependencies {
 
 ### 执行器列表
 
-| 执行器类型                                                   | 执行器命令   | 支持版本   | 执行器所属会话                 | 执行器功能               |
-|---------------------------------------------------------|---------|--------|-------------------------|---------------------|
-| dialogue.core.actuator.MasterGetFileActuator            | get     | v1.0.0 | MASTER_FILE_SESSION     | 从被控设备接收文件           |
-| dialogue.core.actuator.ControlledGetFileActuator        | get     | v1.0.0 | CONTROLLED_FILE_SESSION | 向主控设备发送文件           |
-| dialogue.core.actuator.MasterGetsDirActuator            | gets    | v1.0.0 | MASTER_FILE_SESSION     | 从被控设备接收一批文件         |
-| dialogue.core.actuator.ControlledGetsDirActuator        | gets    | v1.0.0 | CONTROLLED_FILE_SESSION | 向主控设备发送一批文件         |
-| dialogue.core.actuator.MasterLookFileActuator           | look    | v1.0.0 | MASTER_FILE_SESSION     | 查看被控设备中的某个文件内容      |
-| dialogue.core.actuator.ControlledLookFileActuator       | look    | v1.0.0 | CONTROLLED_FILE_SESSION | 将文件数据传递给主控设备        |
-| dialogue.core.actuator.MasterPutFileActuator            | put     | v1.0.0 | MASTER_FILE_SESSION     | 向被控设备发送文件           |
-| dialogue.core.actuator.ControlledPutFileActuator        | put     | v1.0.0 | CONTROLLED_FILE_SESSION | 接收来自主控设备的文件         |
-| dialogue.core.actuator.MasterPutsDirActuator            | puts    | v1.0.0 | MASTER_FILE_SESSION     | 向被控设备发送一批文件         |
-| dialogue.core.actuator.ControlledPutsDirActuator        | puts    | v1.0.0 | CONTROLLED_FILE_SESSION | 接收来自主控设备的一批文件       |
-| dialogue.core.actuator.MasterRunningProgramActuator     | running | v1.0.1 | MASTER_FILE_SESSION     | 将程序文件传递给远程主机运行并接收结果 |
-| dialogue.core.actuator.ControlledRunningProgramActuator | running | v1.0.1 | CONTROLLED_FILE_SESSION | 接收到程序文件并运行，然后返回结果   |
+| 执行器类型                                                   | 执行器命令    | 支持版本   | 执行器所属会话                 | 执行器功能               |
+|---------------------------------------------------------|----------|--------|-------------------------|---------------------|
+| dialogue.core.actuator.MasterGetFileActuator            | get      | v1.0.0 | MASTER_FILE_SESSION     | 从被控设备接收文件           |
+| dialogue.core.actuator.ControlledGetFileActuator        | get      | v1.0.0 | CONTROLLED_FILE_SESSION | 向主控设备发送文件           |
+| dialogue.core.actuator.MasterGetsDirActuator            | gets     | v1.0.0 | MASTER_FILE_SESSION     | 从被控设备接收一批文件         |
+| dialogue.core.actuator.ControlledGetsDirActuator        | gets     | v1.0.0 | CONTROLLED_FILE_SESSION | 向主控设备发送一批文件         |
+| dialogue.core.actuator.MasterLookFileActuator           | look     | v1.0.0 | MASTER_FILE_SESSION     | 查看被控设备中的某个文件内容      |
+| dialogue.core.actuator.ControlledLookFileActuator       | look     | v1.0.0 | CONTROLLED_FILE_SESSION | 将文件数据传递给主控设备        |
+| dialogue.core.actuator.MasterPutFileActuator            | put      | v1.0.0 | MASTER_FILE_SESSION     | 向被控设备发送文件           |
+| dialogue.core.actuator.ControlledPutFileActuator        | put      | v1.0.0 | CONTROLLED_FILE_SESSION | 接收来自主控设备的文件         |
+| dialogue.core.actuator.MasterPutsDirActuator            | puts     | v1.0.0 | MASTER_FILE_SESSION     | 向被控设备发送一批文件         |
+| dialogue.core.actuator.ControlledPutsDirActuator        | puts     | v1.0.0 | CONTROLLED_FILE_SESSION | 接收来自主控设备的一批文件       |
+| dialogue.core.actuator.MasterRunningProgramActuator     | running  | v1.0.1 | MASTER_FILE_SESSION     | 将程序文件传递给远程主机运行并接收结果 |
+| dialogue.core.actuator.ControlledRunningProgramActuator | running  | v1.0.1 | CONTROLLED_FILE_SESSION | 接收到程序文件并运行，然后返回结果   |
+| dialogue.core.actuator.MasterSeeDirActuator             | see-dir  | v1.0.2 | MASTER_FILE_SESSION     | 查询被控设备中的目录结构        |
+| dialogue.core.actuator.ControlledSeeDirActuator         | see-dir  | v1.0.2 | CONTROLLED_FILE_SESSION | 按照主控的需求解析目录结构并返回结果  |
+| dialogue.core.actuator.MasterSeeDirNameActuator         | see-dirN | v1.0.2 | MASTER_FILE_SESSION     | 查询被控设备中的目录中的所有文件名   |
+| dialogue.core.actuator.ControlledSeeDirNameActuator     | see-dirN | v1.0.2 | CONTROLLED_FILE_SESSION | 按照主控的需求解析目录文件名并返回结果 |
 
 # 操作示例
 
