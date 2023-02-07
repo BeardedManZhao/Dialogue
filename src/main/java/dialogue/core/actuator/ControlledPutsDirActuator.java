@@ -4,13 +4,16 @@ import dialogue.ConfigureConstantArea;
 import dialogue.Session;
 import dialogue.core.controlled.ControlledSession;
 import dialogue.utils.IOUtils;
-import dialogue.utils.progressEvent.ProgressFileNumber;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.regex.Matcher;
 
 /**
+ * 被控目录中所有文件的接收进程，在进行被控目录接收任务时的执行器。
+ * <p>
+ * The receiving process of all files in the controlled directory is the executor when performing the receiving task of the controlled directory.
+ *
  * @author 赵凌宇
  */
 public class ControlledPutsDirActuator extends ControlledPutFileActuator {
@@ -91,10 +94,8 @@ public class ControlledPutsDirActuator extends ControlledPutFileActuator {
                                 // 代表有下一个文件，开始创建文件数据流
                                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(dirPath + '/' + fileName));
                                 ConfigureConstantArea.LOGGER.info(fileName);
-                                // 获取到文件大小
-                                ProgressFileNumber fileProgress = ConfigureConstantArea.FILE_PROGRESS;
-                                if (fileProgress != null) fileProgress.setMaxSize(fileSize);
-                                IOUtils.copy(fileSize, dataInputStream, bufferedOutputStream, fileProgress);
+                                // 开始发送数据
+                                IOUtils.copy(fileSize, dataInputStream, bufferedOutputStream, null);
                                 // 关闭当前文件数据流
                                 bufferedOutputStream.flush();
                                 bufferedOutputStream.close();

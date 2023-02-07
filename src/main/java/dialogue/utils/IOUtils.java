@@ -30,36 +30,6 @@ public final class IOUtils {
     }
 
     /**
-     * 获取到输入流中的所有byte[]数组数据
-     *
-     * @param inputStream 需要被提取的输入流
-     * @return 输入流中的所有byte数组数据
-     * @throws IOException 加载异常
-     */
-    public static byte[] getByteArrayByStream(InputStream inputStream) throws IOException {
-        return getByteArrayByStream(inputStream, false);
-    }
-
-    /**
-     * 获取到输入流中的所有byte[]数组数据
-     *
-     * @param inputStream 需要被提取的输入流
-     * @param CloseStream 输入流被提取完成后是否需要关闭，如果设置为true，代表提取之后自动关闭数据流
-     * @return 输入流中的所有byte数组数据
-     * @throws IOException 加载异常
-     */
-    public static byte[] getByteArrayByStream(InputStream inputStream, boolean CloseStream) throws IOException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[65535];
-        int offset;
-        while ((offset = inputStream.read(buffer)) > 0) {
-            byteArrayOutputStream.write(buffer, 0, offset);
-        }
-        if (CloseStream) inputStream.close();
-        return byteArrayOutputStream.toByteArray();
-    }
-
-    /**
      * 关闭一个数据流
      *
      * @param closeable 需要被关闭的目标数据流对象
