@@ -1,4 +1,4 @@
-# ![image](https://user-images.githubusercontent.com/113756063/211130608-facaaa74-74bc-4e48-9096-2b3e9b517b75.png) Dialogue
+# ![image](https://user-images.githubusercontent.com/113756063/226080848-2e26ca28-3840-43a9-a356-307fc41e0918.png) Dialogue
 
 # 介绍
 
