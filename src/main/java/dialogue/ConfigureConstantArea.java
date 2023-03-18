@@ -5,10 +5,7 @@ import dialogue.utils.ProgressEvent;
 import dialogue.utils.loggerFormatter.LogFormatter;
 import dialogue.utils.progressEvent.ProgressFileNumber;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +24,7 @@ public final class ConfigureConstantArea {
      * <p>
      * The version code x.xx of this library represents the x.x.x version. Different versions have different compatibility effects
      */
-    public final static float VERSION = 1.02f;
+    public final static float VERSION = 1.03f;
 
     /**
      * 配置文件目录
@@ -138,6 +135,16 @@ public final class ConfigureConstantArea {
             loadLogger();
         }
         clearExe();
+        // 准备就绪
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(ConfFile.getParent() + "/dialogue_startLog"));
+            while (bufferedReader.ready()) {
+                LOGGER.info(bufferedReader.readLine());
+            }
+            bufferedReader.close();
+        } catch (IOException ignored) {
+
+        }
     }
 
     /**
