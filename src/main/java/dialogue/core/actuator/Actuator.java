@@ -15,6 +15,7 @@ public interface Actuator {
      */
     String OK_1 = "ok/file1";
     String OK_2 = "ok/file2";
+    String AE_1 = "file1/AlreadyExists";
 
     /**
      * @return 能够调用该执行器的会话对象编号。

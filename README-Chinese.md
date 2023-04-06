@@ -79,6 +79,8 @@ dependencies {
 | dialogue.core.actuator.ControlledSeeDirActuator         | see-dir  | v1.0.2 | CONTROLLED_FILE_SESSION | 按照主控的需求解析目录结构并返回结果  |
 | dialogue.core.actuator.MasterSeeDirNameActuator         | see-dirN | v1.0.2 | MASTER_FILE_SESSION     | 查询被控设备中的目录中的所有文件名   |
 | dialogue.core.actuator.ControlledSeeDirNameActuator     | see-dirN | v1.0.2 | CONTROLLED_FILE_SESSION | 按照主控的需求解析目录文件名并返回结果 |
+| dialogue.core.actuator.MasterPutsNCActuator             | puts-nc  | v1.0.4 | MASTER_FILE_SESSION     | 向被控设备发送一批被控中不存在的文件  |
+| dialogue.core.actuator.ControlledPutsNCActuator         | puts-nc  | v1.0.4 | CONTROLLED_FILE_SESSION | 接收来自主控设备的一批文件       |
 
 # 操作示例
 
