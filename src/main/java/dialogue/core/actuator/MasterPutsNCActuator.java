@@ -101,6 +101,7 @@ public class MasterPutsNCActuator implements Actuator {
                                 // 等待对方回复文件是否需要接受
                                 if (dataInputStream.readUTF().equals(AE_1)) {
                                     // 如果不需要就直接跳过
+                                    ConfigureConstantArea.LOGGER.info(s + " continue!!!");
                                     continue;
                                 }
                                 // 开始发送文件数据量
