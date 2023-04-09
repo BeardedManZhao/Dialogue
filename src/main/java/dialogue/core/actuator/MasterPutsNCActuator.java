@@ -97,11 +97,12 @@ public class MasterPutsNCActuator implements Actuator {
                             String s = dataInputStream.readUTF();
                             if (OK_2.equals(s)) {
                                 // 开始发送编码，告知对方还有下一个文件
-                                dataOutputStream.writeUTF(file.getName());
+                                String name = file.getName();
+                                dataOutputStream.writeUTF(name);
                                 // 等待对方回复文件是否需要接受
                                 if (dataInputStream.readUTF().equals(AE_1)) {
                                     // 如果不需要就直接跳过
-                                    ConfigureConstantArea.LOGGER.info(s + " continue!!!");
+                                    ConfigureConstantArea.LOGGER.info(name + " continue!!!");
                                     continue;
                                 }
                                 // 开始发送文件数据量
