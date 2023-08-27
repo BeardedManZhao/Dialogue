@@ -24,7 +24,7 @@ public final class ConfigureConstantArea {
      * <p>
      * The version code x.xx of this library represents the x.x.x version. Different versions have different compatibility effects
      */
-    public final static float VERSION = 1.03f;
+    public final static float VERSION = 1.04f;
 
     /**
      * 配置文件目录

@@ -31,6 +31,7 @@ public class ControlledFileSession extends ConsoleSession {
     protected ControlledSeeDirActuator controlledSeeDirActuator;
     protected ControlledSeeDirNameActuator controlledSeeDirNameActuator;
     protected ControlledRunningProgramActuator controlledRunningProgramActuator;
+    protected ControlledSnapActuator controlledSnapActuator;
 
     private final ProgressEvent<Socket, OutputStream, InputStream> INIT_ProgressEvent = new ProgressEvent<Socket, OutputStream, InputStream>() {
         private Socket tempSocket;
@@ -58,6 +59,7 @@ public class ControlledFileSession extends ConsoleSession {
             controlledSeeDirActuator = new ControlledSeeDirActuator(tempSocket, type, tempOut);
             controlledSeeDirNameActuator = new ControlledSeeDirNameActuator(tempSocket, type, tempOut);
             controlledRunningProgramActuator = new ControlledRunningProgramActuator(tempSocket, type, tempOut);
+            controlledSnapActuator = new ControlledSnapActuator(tempSocket, type, tempOut);
             ActuatorManager.registerControlledActuator(controlledGetActuator);
             ActuatorManager.registerControlledActuator(controlledLookFileActuator);
             ActuatorManager.registerControlledActuator(controlledPutFileActuator);
@@ -67,6 +69,7 @@ public class ControlledFileSession extends ConsoleSession {
             ActuatorManager.registerControlledActuator(controlledSeeDirActuator);
             ActuatorManager.registerControlledActuator(controlledSeeDirNameActuator);
             ActuatorManager.registerControlledActuator(controlledRunningProgramActuator);
+            ActuatorManager.registerControlledActuator(controlledSnapActuator);
         }
     };
 
@@ -110,6 +113,7 @@ public class ControlledFileSession extends ConsoleSession {
         ActuatorManager.unControlledRegister(this.controlledSeeDirActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledSeeDirNameActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledRunningProgramActuator.getName());
+        ActuatorManager.unControlledRegister(this.controlledSnapActuator.getName());
     }
 
     /**
