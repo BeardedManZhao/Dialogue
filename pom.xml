@@ -45,7 +45,7 @@
         <dependency>
             <groupId>io.github.BeardedManZhao</groupId>
             <artifactId>algorithmStar</artifactId>
-            <version>1.23</version>
+            <version>1.24</version>
         </dependency>
         <!-- Binding using the adapter of log4j2 -->
         <dependency>
