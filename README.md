@@ -18,7 +18,7 @@ coordinates.
 <dependency>
     <groupId>io.github.BeardedManZhao</groupId>
     <artifactId>dialogue</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
@@ -26,7 +26,7 @@ coordinates.
 
 ```gradle
 dependencies {
-    implementation 'io.github.BeardedManZhao:dialogue:1.0.3'
+    implementation 'io.github.BeardedManZhao:dialogue:1.0.4'
 }
 ```
 
