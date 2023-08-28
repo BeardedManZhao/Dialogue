@@ -40,9 +40,11 @@ public class MasterFileSession extends TCPSession {
     protected MasterPutFileActuator masterPutFileActuator;
     protected MasterGetsDirActuator masterGetsDirActuator;
     protected MasterPutsDirActuator masterPutsDirActuator;
+    protected MasterPutsNCActuator masterPutsNCActuator;
     protected MasterSeeDirActuator masterSeeDirActuator;
     protected MasterSeeDirNameActuator masterSeeDirNameActuator;
     protected MasterRunningProgramActuator masterRunningProgramActuator;
+    protected MasterSnapActuator masterSnapActuator;
 
     protected MasterFileSession() {
     }
@@ -67,17 +69,21 @@ public class MasterFileSession extends TCPSession {
         this.masterPutFileActuator = new MasterPutFileActuator(fileSocket, outputStream, inputStream);
         this.masterGetsDirActuator = new MasterGetsDirActuator(fileSocket, outputStream);
         this.masterPutsDirActuator = new MasterPutsDirActuator(fileSocket, outputStream);
+        this.masterPutsNCActuator = new MasterPutsNCActuator(fileSocket, outputStream);
         this.masterSeeDirActuator = new MasterSeeDirActuator(fileSocket, outputStream);
         this.masterSeeDirNameActuator = new MasterSeeDirNameActuator(fileSocket, outputStream);
         this.masterRunningProgramActuator = new MasterRunningProgramActuator(fileSocket, outputStream, inputStream);
+        masterSnapActuator = new MasterSnapActuator(fileSocket, outputStream, inputStream);
         ActuatorManager.registerMasterActuator(masterLookFileActuator);
         ActuatorManager.registerMasterActuator(masterGetFileActuator);
         ActuatorManager.registerMasterActuator(masterPutFileActuator);
         ActuatorManager.registerMasterActuator(masterGetsDirActuator);
         ActuatorManager.registerMasterActuator(masterPutsDirActuator);
+        ActuatorManager.registerMasterActuator(masterPutsNCActuator);
         ActuatorManager.registerMasterActuator(masterSeeDirActuator);
         ActuatorManager.registerMasterActuator(masterSeeDirNameActuator);
         ActuatorManager.registerMasterActuator(masterRunningProgramActuator);
+        ActuatorManager.registerMasterActuator(masterSnapActuator);
     }
 
     /**
@@ -99,6 +105,7 @@ public class MasterFileSession extends TCPSession {
         ActuatorManager.unMasterRegister(this.masterSeeDirActuator.getName());
         ActuatorManager.unMasterRegister(this.masterSeeDirNameActuator.getName());
         ActuatorManager.unMasterRegister(this.masterRunningProgramActuator.getName());
+        ActuatorManager.unMasterRegister(this.masterSnapActuator.getName());
     }
 
     /**
