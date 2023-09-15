@@ -105,6 +105,8 @@ However, the use of these functions has certain risks. Please be careful!
 | dialogue.core.actuator.ControlledSeeDirNameActuator     | see-dirN         | v1.0.2 | CONTROLLED_FILE_SESSION               | Resolve the directory file name according to the master's requirements and return the result                  |
 | dialogue.core.actuator.MasterPutsNCActuator             | puts-nc          | v1.0.4 | MASTER_FILE_SESSION                   | Send a batch of files that do not exist in the controlled device                                              |
 | dialogue.core.actuator.ControlledPutsNCActuator         | puts-nc          | v1.0.4 | CONTROLLED_FILE_SESSION               | Receive a batch of files from the main control device                                                         |
+| dialogue.core.actuator.MasterSnapActuator               | snap             | v1.0.4 | MASTER_FILE_SESSION                   | Send a photo command to the accused and analyze the results                                                   |
+| dialogue.core.actuator.ControlledSnapActuator           | snap             | v1.0.4 | CONTROLLED_FILE_SESSION               | Call the library to take photos and return serialized data                                                    |
 
 # Example of operation
 
