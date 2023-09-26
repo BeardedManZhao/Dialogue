@@ -24,7 +24,7 @@ public final class ConfigureConstantArea {
      * <p>
      * The version code x.xx of this library represents the x.x.x version. Different versions have different compatibility effects
      */
-    public final static float VERSION = 1.04f;
+    public final static float VERSION = 1.05f;
 
     /**
      * 配置文件目录
@@ -38,22 +38,6 @@ public final class ConfigureConstantArea {
      * 工具全局日志对象
      */
     public final static Logger LOGGER = Logger.getLogger("dialogue");
-    /**
-     * 工具全局日志界别对象
-     */
-    public final static String LOGGER_LEVEL;
-    /**
-     * 主控设备向被控设发送的数据包最大值
-     */
-    public final static int TCP_BUFFER_MAX_SIZE;
-    /**
-     * 通信文字编码
-     */
-    public final static String CHARSET;
-    /**
-     * 文件传输端口，默认是10002
-     */
-    public final static int FILE_PORT;
     /**
      * 文件传输时的事件处理器，如果这里设置为null，代表不需要任何事件操作
      */
@@ -73,13 +57,28 @@ public final class ConfigureConstantArea {
      * The persistent session channel port requires a long-term interactive command when conducting interactive commands. In this case, a persistent session is required, and a separate port will be opened for service.
      */
     public final static int PERSISTENT_SESSION_CHANNEL_PORT;
-
     /**
      * 文件在远程主机中运行的目录
      * <p>
      * Directory where the file runs on the remote host
      */
     public final static String REMOTE_RUNNING_DIRECTORY = "./exe/";
+    /**
+     * 工具全局日志界别对象
+     */
+    public static String LOGGER_LEVEL;
+    /**
+     * 主控设备向被控设发送的数据包最大值
+     */
+    public static int TCP_BUFFER_MAX_SIZE;
+    /**
+     * 通信文字编码
+     */
+    public static String CHARSET;
+    /**
+     * 文件传输端口，默认是10002
+     */
+    public static int FILE_PORT;
 
     static {
         LOGGER.setUseParentHandlers(false);
@@ -186,5 +185,49 @@ public final class ConfigureConstantArea {
         } else {
             throw new RuntimeException("Unknown log level: " + LOGGER_LEVEL);
         }
+    }
+
+    /**
+     * 设置当前通信数据包的最大长度，您可以通过此参数将通信过程中的数据包大小进行限制。
+     * <p>
+     * Set the maximum length of the current communication packet, which allows you to limit the packet size during the communication process.
+     *
+     * @param tcpBufferMaxSize max
+     */
+    public static void setTcpBufferMaxSize(int tcpBufferMaxSize) {
+        TCP_BUFFER_MAX_SIZE = tcpBufferMaxSize;
+    }
+
+    /**
+     * 设置当前通信过程中，数据解析使用的编码集，一般情况下，此参数需要保证双端相同，否则会导致乱码发生。
+     * <p>
+     * Set the encoding set used for data parsing during the current communication process. Generally, this parameter needs to ensure that both ends are the same, otherwise it may cause garbled code.
+     *
+     * @param CHARSET 需要使用的字符编码集的字符串。
+     *                <p>
+     *                The string of the character encoding set that needs to be used.
+     */
+    public static void setCHARSET(String CHARSET) {
+        ConfigureConstantArea.CHARSET = CHARSET;
+    }
+
+    /**
+     * 设置当前通讯过程中，文件等二进制数据的收发端口，一般情况下，此参数需要保证双端相同，否则会导致无回复或无应答的情况发生。
+     * <p>
+     * Set the sending and receiving ports for binary data such as files during the current communication process. Generally, this parameter needs to ensure that both ends are the same, otherwise it may result in no response or no response.
+     *
+     * @param filePort 文件端口
+     */
+    public static void setFilePort(int filePort) {
+        FILE_PORT = filePort;
+    }
+
+    /**
+     * 设置当前框架运行时的日志级别。
+     *
+     * @param loggerLevel 日志级别字符串。
+     */
+    public static void setLoggerLevel(String loggerLevel) {
+        LOGGER_LEVEL = loggerLevel;
     }
 }
