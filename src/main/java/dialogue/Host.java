@@ -4,6 +4,8 @@ import java.util.Date;
 
 /**
  * 主机抽象类，其中提供了获取主机的信息与运行命令的函数
+ * <p>
+ * Host abstract class, which provides functions for obtaining host information and running commands
  */
 public interface Host {
 
