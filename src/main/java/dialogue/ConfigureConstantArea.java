@@ -24,7 +24,7 @@ public final class ConfigureConstantArea {
      * <p>
      * The version code x.xx of this library represents the x.x.x version. Different versions have different compatibility effects
      */
-    public final static float VERSION = 1.05f;
+    public final static float VERSION = 1.06f;
 
     /**
      * 配置文件目录
@@ -79,6 +79,11 @@ public final class ConfigureConstantArea {
      * 文件传输端口，默认是10002
      */
     public static int FILE_PORT;
+
+    /**
+     * 当前运行环境是否为安卓 如果是则为 true
+     */
+    public static boolean isAndroid = System.getProperty("os.name").toLowerCase().contains("android");
 
     static {
         LOGGER.setUseParentHandlers(false);
@@ -229,5 +234,12 @@ public final class ConfigureConstantArea {
      */
     public static void setLoggerLevel(String loggerLevel) {
         LOGGER_LEVEL = loggerLevel;
+    }
+
+    /**
+     * @param isAndroid 显式的设置运行环境是否为 安卓。
+     */
+    public static void setIsAndroid(boolean isAndroid) {
+        ConfigureConstantArea.isAndroid = isAndroid;
     }
 }

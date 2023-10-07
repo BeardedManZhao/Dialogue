@@ -70,6 +70,10 @@ public class ControlledFileSession extends ConsoleSession {
             ActuatorManager.registerControlledActuator(controlledSeeDirNameActuator);
             ActuatorManager.registerControlledActuator(controlledRunningProgramActuator);
             ActuatorManager.registerControlledActuator(controlledSnapActuator);
+            if (!ConfigureConstantArea.isAndroid) {
+                // 如果是 非安卓 环境则加载的组件
+                ActuatorManager.registerControlledActuator(controlledSnapActuator);
+            }
         }
     };
 
@@ -113,7 +117,10 @@ public class ControlledFileSession extends ConsoleSession {
         ActuatorManager.unControlledRegister(this.controlledSeeDirActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledSeeDirNameActuator.getName());
         ActuatorManager.unControlledRegister(this.controlledRunningProgramActuator.getName());
-        ActuatorManager.unControlledRegister(this.controlledSnapActuator.getName());
+        if (!ConfigureConstantArea.isAndroid) {
+            // 如果是 非安卓 环境则注销的组件
+            ActuatorManager.unControlledRegister(this.controlledSnapActuator.getName());
+        }
     }
 
     /**

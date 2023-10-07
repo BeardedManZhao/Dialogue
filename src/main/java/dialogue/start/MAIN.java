@@ -64,6 +64,7 @@ public final class MAIN {
                         status = false;
                         instance.stop();
                         System.out.println("state >>> 被控会话运行状态布尔值\t:\t" + instance.isRunning());
+                        instance.shutDown();
                         return;
                     } else if ("state".equalsIgnoreCase(s)) {
                         InetAddress inetAddress = instance.ConnectedMaster();

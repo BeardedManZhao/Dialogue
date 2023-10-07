@@ -83,7 +83,10 @@ public class MasterFileSession extends TCPSession {
         ActuatorManager.registerMasterActuator(masterSeeDirActuator);
         ActuatorManager.registerMasterActuator(masterSeeDirNameActuator);
         ActuatorManager.registerMasterActuator(masterRunningProgramActuator);
-        ActuatorManager.registerMasterActuator(masterSnapActuator);
+        if (!ConfigureConstantArea.isAndroid) {
+            // 如果是 非安卓 环境则加载的组件
+            ActuatorManager.registerMasterActuator(masterSnapActuator);
+        }
     }
 
     /**
@@ -105,7 +108,10 @@ public class MasterFileSession extends TCPSession {
         ActuatorManager.unMasterRegister(this.masterSeeDirActuator.getName());
         ActuatorManager.unMasterRegister(this.masterSeeDirNameActuator.getName());
         ActuatorManager.unMasterRegister(this.masterRunningProgramActuator.getName());
-        ActuatorManager.unMasterRegister(this.masterSnapActuator.getName());
+        if (!ConfigureConstantArea.isAndroid) {
+            // 如果是 非安卓 环境则注销的组件
+            ActuatorManager.unMasterRegister(this.masterSnapActuator.getName());
+        }
     }
 
     /**
